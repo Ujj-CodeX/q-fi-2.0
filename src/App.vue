@@ -1,26 +1,29 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" style="background-color: blue;">
+    <NavBar />
+    </div>
+    <main class="container-fluid">
+      <router-view />  
+    </main>
+    
+    <Footer />
+  
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import NavBar from './components/Nav.vue';
+import Footer from './components/Footer.vue';
 
+
+// eslint-disable-next-line vue/multi-word-component-names
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    NavBar ,Footer
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>

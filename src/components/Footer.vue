@@ -1,5 +1,5 @@
 <template>
-   <footer class="bg text-white text-center text-lg-start" style="margin-top: 500px; background-color: blue; ">
+   <footer class="bg text-white text-center text-lg-start" style="margin-top: 500px; background-color: rgb(3, 3, 137); ">
         <div class="container p-4" >
             <div class="row">
                 <div class="col-lg-4 col-md-12 mb-4 mb-md-0" style="margin-left: 370px; ">

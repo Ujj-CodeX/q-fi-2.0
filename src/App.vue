@@ -1,5 +1,5 @@
 <template>
-  <div id="app" style="background-color: blue;">
+  <div id="app" style="background-color: rgb(3, 3, 137);">
     <NavBar />
     </div>
     <main class="container-fluid">

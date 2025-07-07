@@ -17,7 +17,7 @@
             <label for="password" class="form-label" style="color: black; font-weight: bold; margin-top: 10px;">Password</label>
             <input type="password" class="form-control" id="password" v-model="password" placeholder="Password">
 
-            <button type="submit" class="btn btn-primary" style="margin-top: 20px; width: 290px; background-color: blue; color: white;">Sign In</button>
+            <button type="submit" class="btn btn-primary" style="margin-top: 20px; width: 290px; background-color: rgb(3, 3, 137); color: white;">Sign In</button>
             <a href="/forgot_user" style=" font-weight: bold; display: block; text-decoration: underline; color:black; margin-top: 15px;">Forgot Password?</a>
 
             <div v-if="errorMessage" class="alert alert-danger mt-3">
@@ -52,7 +52,7 @@
           <option>Electrical</option>
         </select>
 
-        <button type="button" class="btn btn-primary" style="margin-left: 20px; border-radius: 8px; width: 100px; background-color: blue; color: white;" @click="handleBookNow">Start Quiz</button>
+        <button type="button" class="btn btn-primary" style="margin-left: 20px; border-radius: 8px; width: 100px; background-color: rgb(3, 3, 137); color: white;" @click="handleBookNow">Start Quiz</button>
       </div>
     </div>
 

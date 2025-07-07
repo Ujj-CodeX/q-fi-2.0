@@ -1,35 +1,46 @@
 <template>
 
-    <div class="heading" style="margin-left: 200px; margin-top:100px; color: black;">
-      <h1 style="font-weight: bold;">Q-Fi</h1>
+    <div class="heading" style="margin-left: 200px; margin-top:100px; color: black; ">
+      
+        <h1 style="font-weight: bold;">Q-Fi</h1>
       <h5 style="font-weight: bold;">Looking for something specific ?</h5>
-    </div>
+    
 
-    <div style="display: flex; align-items: flex-start; gap: 50px; margin-top: 0px; margin-left: 10px">
+     <div>
+             <h3 style=" font-weight: bold; margin-top: 50px;"> Search more Courses</h3>  
+
+        <form class="d-flex" role="search" style="margin-top: 40px; width: 450px; " action="/Show_table" method="post" >
+          <input class="form-control mr-2" name="service_name" type="search" placeholder="Enter the Course" aria-label="Search Services by SERVICE ID" style="border-radius: 10px;">
+          <button class="btn btn-primary" style="background-color: rgb(3, 3, 137); color: white; border-radius: 8px;" type="submit">Search</button>
+        </form>
+
+        </div>
+</div>
+    <div style="display: flex; align-items: flex-start; gap: 30px; margin-top: 0px; margin-left: 10px">
 
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0px; margin-left: 100px">
-            <div class="card" style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/2.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; ">
-                <h7 style="margin-left: 30px; font-weight: bold; font-size: small; margin-top: 20px;" >Leaderboard</h7>
+            <div  style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
+                <img :src="require('@/assets/10.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px;">
+                <h7 style="margin-left: 20px; font-weight: bold; font-size: medium; margin-top: 20px;" >Leaderboard</h7>
             </div>
 
-            <div class="card" style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/3.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; ">
-                <h7 style="margin-left: 10px; margin-top: 20px; font-weight: bold; font-size: small;" >Performance Report</h7>
+            <div  style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
+                <img :src="require('@/assets/6.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
+                <h7 style="margin-left: 5px; margin-top: 20px; font-weight: bold; font-size: medium;" >Download Report</h7>
                 
             </div>
     </div>
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0px; ">
         
 
-            <div class="card" style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/2.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; ">
-                <h7 style="margin-left: 30px; font-weight: bold; font-size: small; margin-top: 20px;" >Score Overtime</h7>
+            <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
+                <img :src="require('@/assets/7.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
+                <h7 style="margin-left: 10px; font-weight: bold; font-size: medium; margin-top: 20px;" >Score Overtime</h7>
             </div>
 
-            <div class="card" style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/3.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; ">
-                <h7 style="margin-left: 30px; margin-top: 20px; font-weight: bold; font-size: small;" >Past attempts</h7>
+            <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
+                <img :src="require('@/assets/9.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px;  border-radius: 8px;">
+                <h7 style="margin-left: 20px; margin-top: 20px; font-weight: bold; font-size: medium;" >Past attempts</h7>
                 
             </div>
 
@@ -73,15 +84,7 @@
 </div>
 </div>
     
-        <div>
-             <h3 style="margin-left: 220px; font-weight: bold; margin-top: 50px;"> Search more Courses</h3>  
-
-        <form class="d-flex" role="search" style="margin-top: 40px; width: 450px; margin-left: 210px;" action="/Show_table" method="post" >
-          <input class="form-control mr-2" name="service_name" type="search" placeholder="Enter the Course" aria-label="Search Services by SERVICE ID" style="border-radius: 10px;">
-          <button class="button" style="background-color: blue; color: white; border-radius: 8px;" type="submit">Search</button>
-        </form>
-
-        </div>
+       
 
 
 </template>
@@ -103,7 +106,7 @@
   width: 250px;
   border-radius: 15px;
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  background-color:blue;
+  background-color:rgb(3, 3, 137);
   padding: 15px;
   margin-left: 200px;
   top: 80px;

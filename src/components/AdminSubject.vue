@@ -1,6 +1,14 @@
 <template>
-    <h2 style="font-weight: bold; margin-left: 550px; margin-top: 50px;">Courses and Subject Management</h2>
-    <div class="card inset-card p-4 text-center" style="width: 1300px; height: 500px; margin-left: 160px; margin-top: 110px; border-radius: 10px;">
+<div style="display: flex; align-items: flex-start;">
+   
+    <div class="sidebar-card">
+      <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
+      <hr>
+    </div>
+   <div style="flex: 2; padding: 10px;">
+
+    <h2 style="font-weight: bold; margin-left: 450px; margin-top: 50px;">Courses and Subject Management</h2>
+    <div class="card inset-card p-4 text-center" style="width: 1300px; height: 500px; margin-left: 50px; margin-top: 50px; border-radius: 10px;">
     <div style="display: flex; align-items: flex-start; gap: 40px; margin-top: 0px;">
 
         <div class="card" style=" border-radius: 10px; width: 350px; height: 400px; margin-left: 50px; background-color: #dfe6e9; margin-top: 20px;">
@@ -66,6 +74,8 @@
 
     </div>
 </div>
+</div>
+</div>
 
 
 
@@ -80,6 +90,16 @@
     inset 0 0 5px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease-in-out;
 }
-
+.sidebar-card {
+  width: 250px;
+  border-radius: 15px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: rgb(3, 3, 137);
+  padding: 15px;
+  top: 20px;
+  position: sticky;
+  height: 85vh;
+  overflow-y: auto;
+}
 
 </style>

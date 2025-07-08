@@ -37,20 +37,64 @@
     </div>
     <div style="display: flex; align-items: flex-start; gap: 200px; ">
     <h4 style="font-weight: bold; margin-left: 500px; margin-top: 60px;">Existing Questions</h4>
-
-    <a href="#" class="btn btn-primary" style="margin-left: 100px; margin-top: 50px; border-radius: 20px; background-color: rgb(3, 3, 137);">Add +</a>
-        
+     
+    
+    <button class="btn btn-primary" @click="showcard = true " style=" margin-left: 100px; margin-top: 50px; border-radius: 20px; background-color: rgb(3, 3, 137);">Add +</button>
+    
+  
+     
    </div>
 
 
 <div class="card inset-card p-4 text-center" style="width: 1200px; height: 500px; margin-left: 30px; margin-top: 50px; border-radius: 10px;">
 </div>
+
+
+  
+</div>
+</div>
+
+
+<div v-if="showcard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 300px; margin-top: 100px; border-radius: 10px;">
+
+ <div style="display: flex; align-items: flex-start; gap: 40px; margin-top: 0px;">
+        <div class="dropdown" >
+           <button class="btn btn dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" aria-expanded="false" style=" margin-top: 30px; margin-left: 150px; background-color: white; color: black; border-radius: 10px;">
+          Choose Courses
+           </button>
+         </div>
+
+         <div class="dropdown" >
+           <button class="btn btn dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" aria-expanded="false" style=" margin-top: 30px; margin-left: 200px; background-color: white; color: black; border-radius: 10px;">
+          Choose Subject
+           </button>
+         </div>
+
+
+         <div class="dropdown" >
+           <button class="btn btn dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" aria-expanded="false" style=" margin-top: 30px; margin-left: 200px; background-color: white; color: black; border-radius: 10px;">
+          Choose Quiz
+           </button>
+         </div>
+
+    </div>
+
+
 </div>
 </div>
 
 </div>
 </template>
 <script>
+export default{
+  data (){
+    return {
+      showcard:false
+    };
+  }
+}
 </script>
 <style>
 .inset-card {
@@ -71,5 +115,17 @@
   height: 85vh;
   overflow-y: auto;
 }
-
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 </style>

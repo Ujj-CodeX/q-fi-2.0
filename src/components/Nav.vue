@@ -18,10 +18,10 @@
                 </li>
                 
                 <li class="nav-item ">
-                    <a class="nav-link text-light" href="/Registration">Sign Up</a>
+                    <a class="nav-link text-light" href="/SignUp">Sign Up</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="/Admin_login">Admin</a>
+                    <a class="nav-link text-light" href="/admin">Admin</a>
                 </li>
             </ul>
             

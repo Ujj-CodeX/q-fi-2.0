@@ -35,21 +35,27 @@
     <div class="heading" style="margin-left: 200px; margin-top:100px; color: black; " >
       <h5 style="font-weight: bold;">Choose your subject & courses</h5>
       <div class="mb-3 d-flex">
-        <select class="form-select" v-model="selectedCourse" style="width: 250px; height: 30px; border-radius: 8px;">
-          <option selected disabled>Select Courses</option>
-          <option>Lucknow</option>
-          <option>Gorakhpur</option>
-          <option>Varanasi</option>
-          <option>Prayagraj</option>
-          <option>Delhi</option>
-          <option>Harayana</option>
+        <select class="form-select" style="width: 250px; height: 30px; border-radius: 8px;">
+          <option disabled selected>Select Courses</option>
+
+          <option>BS</option>
+          <option>BCA</option>
+          <option>BA</option>
+          <option>BTech</option>
+          <option>BBA</option>
+         
         </select>
 
-        <select class="form-select" v-model="selectedSubject" style="margin-left: 20px; height: 30px; border-radius: 8px;">
-          <option selected disabled>Choose Subject</option>
-          <option>Plumbing</option>
-          <option>Cleaning</option>
-          <option>Electrical</option>
+        <select class="form-select" style="margin-left: 20px; height: 30px; border-radius: 8px;" >
+          <option disabled selected>Select Courses</option>
+
+          <option>Python</option>
+          <option>Machine Learning</option>
+          <option>Operating System</option>
+          <option>Business Management</option>
+          <option>System Automation</option>
+          <option>Ancient History</option>
+
         </select>
 
         <button type="button" class="btn btn-primary" style="margin-left: 20px; border-radius: 8px; width: 100px; background-color: rgb(3, 3, 137); color: white;" @click="handleBookNow">Start Quiz</button>
@@ -80,12 +86,14 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Home',
-  
+<script setup>
+
+
+function handleBookNow() {
+  alert(`Thannks for your Interest Login with your Student ID to start acing your Grades.`)
 }
 </script>
+
 
 <style scoped>
 .service-img {

@@ -5,6 +5,8 @@ import Dash2 from '../components/AdminSubject.vue'
 import Dash3 from '../components/AdminQuiz.vue'
 import Dash4 from '../components/AdminUser.vue'
 import test from '../components/UserTest.vue'
+import SignUp from '@/components/SignUp.vue'
+import Admin_Login from '@/components/Admin_Login.vue'
 
 const routes =[
     {
@@ -37,6 +39,17 @@ const routes =[
         name: 'test',
         component : test
     },
+    {
+        path:'/Signup',
+        name: 'register',
+        component : SignUp
+    },
+    {
+        path:'/admin',
+        name: 'admin',
+        component : Admin_Login
+    },
+
 
 ]
 

@@ -38,7 +38,12 @@ const routes =[
     {
         path:'/Test',
         name: 'test',
-        component : test
+        component : test,
+        props: route => ({
+    quizName: route.query.quizNameName,
+    duration: route.query.duration,
+    questions: route.query.questions
+  })
     },
     {
         path:'/Signup',

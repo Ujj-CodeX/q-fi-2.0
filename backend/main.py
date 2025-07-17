@@ -5,6 +5,7 @@ import os
 from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity
 import sqlite3
 import datetime
+from datetime import timezone
 from flask import jsonify, request
 
 app = Flask(__name__)
@@ -404,6 +405,132 @@ def add_question():
 
 ########----------------------------End-----------------------------------#######
 
+
+
+@app.route('/submit-quiz', methods=['POST'])
+@jwt_required()
+def submit_quiz():
+    identity = get_jwt_identity() 
+    print(" Protected Route - Token Data:", identity)
+
+    try:
+        username, course = identity.split(':') 
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+    
+    data = request.get_json()
+    print(" Received data:", data)
+    
+    # Data validation
+    if not data:
+        return jsonify({"error": "Invalid or missing JSON data"}), 400
+    
+
+
+    quiz_name = data.get('quizName')
+    user_id = username
+    user_answers = data.get('userAnswers', {})
+
+    if not quiz_name or not user_id:
+        return jsonify({"error": "quizName or userID missing"}), 400
+
+    if not isinstance(user_answers, dict):
+        return jsonify({"error": "Invalid data format for userAnswers"}), 400
+
+    # Database connection
+    try:
+        conn = get_db()
+    except Exception as e:
+        return jsonify({"error": f"Database connection error: {str(e)}"}), 500
+
+    
+    correct_answers = conn.execute('''
+        SELECT q.id, o.text AS correct_answer
+        FROM question q
+        JOIN option o ON q.id = o.question_id
+        WHERE o.is_correct = 1 AND q.chapter_id = (
+            SELECT id FROM chapter WHERE name = ?
+        )
+    ''', (quiz_name,)).fetchall()
+
+    if not correct_answers:
+        return jsonify({"error": "No questions found for this quiz"}), 404
+
+    correct_answer_dict = {str(row['id']): row['correct_answer'] for row in correct_answers}
+
+    
+    score = sum(1 for q_id, selected_option in user_answers.items()
+                if correct_answer_dict.get(q_id) == selected_option)
+
+    
+    conn.execute('''
+        INSERT INTO quiz_result (user_id, quiz_name, duration, questions_count, score, submission_time)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (
+        user_id,
+        quiz_name,
+        data.get('duration', 0),
+        len(correct_answers),
+        score,
+        datetime.now(timezone.utc)
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Quiz submitted successfully!", "score": score})
+
+@app.route('/get-questions', methods=['GET'])
+@jwt_required()
+def getquestions():
+    quiz_name = request.args.get('quizName')
+    duration = request.args.get('duration')
+    questions_count = request.args.get('questions')
+
+    print(f"Received quizName={quiz_name}, duration={duration}, questions={questions_count}")
+
+    if not quiz_name or not duration or not questions_count:
+        return jsonify({"error": "Missing quiz parameters"}), 400
+
+    questions_count = int(questions_count)
+
+    conn = get_db()
+    questions = conn.execute('''
+        SELECT q.id, q.text, o.id AS option_id, o.text AS option_text
+        FROM question q
+        JOIN option o ON q.id = o.question_id
+        WHERE q.id IN (
+            SELECT id 
+            FROM question 
+            WHERE chapter_id = (
+                SELECT id 
+                FROM chapter 
+                WHERE name = ?
+            )
+            LIMIT ?
+        )
+    ''', (quiz_name, questions_count)).fetchall()
+
+    conn.close()
+
+    if not questions:
+        print("⚠️ No questions fetched. Check chapter name or DB data.")
+
+    result = {}
+    for row in questions:
+        q_id = row[0]
+        if q_id not in result:
+            result[q_id] = {
+                'id': q_id,
+                'text': row[1],
+                'options': []
+            }
+        result[q_id]['options'].append({
+            'id': row[0],
+            'text': row[1]
+        })
+
+    return jsonify(list(result.values()))
 
 
 if __name__ == '__main__':

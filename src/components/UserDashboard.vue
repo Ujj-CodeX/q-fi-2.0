@@ -95,12 +95,12 @@
         <div style="display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 20px;">
   <div class="form-group mb-3">
           
-          <select id="duration" class="form-control" v-model="quizSettings.duration" style="border-radius: 10px; background-color: rgb(3, 3, 137); color: white;">
-            <option disabled value=""> Select Duration</option>
-            <option>10 Minutes</option>
-            <option>20 Minutes</option>
-            <option>30 Minutes</option>
-          </select>
+          <select v-model.number="quizSettings.duration" class="form-control" style="border-radius: 10px; background-color: rgb(3, 3, 137); color: white;">
+  <option disabled value="">Select Duration</option>
+  <option :value="5">5 Minutes</option>
+  <option :value="10">10 Minutes</option>
+  <option :value="15">15 Minutes</option>
+</select>
         </div>
 
         
@@ -145,10 +145,10 @@ export default {
       selectedSubjectId: null,
       showcard:false, 
       selectedChapterName: '',
-      quizName: this.$route.params.quizName || "Quiz",
             quizSettings: {
                 duration: "",
-                questions: ""
+                questions: "",
+                quizName:""
             }
  
     };
@@ -163,7 +163,7 @@ export default {
   methods: {
     async fetchSubjects() {
   try {
-    const token = localStorage.getItem('token');  // Retrieve token from storage
+    const token = localStorage.getItem('token');  
 
     const response = await axios.get('http://localhost:5000/subjects1', {
       headers: {
@@ -222,11 +222,34 @@ async fetchChapters(subjectId) {
 },openQuizCard(chapterName) {
   this.name = chapterName;
   this.showcard = true;
+  this.quizSettings.quizName = chapterName;
 
 },
 setOption(type, value) {
             this.quizSettings[type] = value;
         },
+
+startQuiz() {
+  const { quizName, duration, questions } = this.quizSettings;
+
+  if (!quizName || !duration || !questions) {
+    alert("Please fill all fields before starting quiz.");
+    return;
+  }
+
+  
+  this.$router.push({
+    path: "/Test",
+    query: {
+      quizName: quizName,
+      duration: duration,
+      questions: questions
+    }
+  });
+}
+
+
+
 
 
 

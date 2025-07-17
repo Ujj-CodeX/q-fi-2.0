@@ -14,6 +14,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.dirn
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'Qfi-2.0@123'
 
+db.init_app(app)
+
+
 jwt =JWTManager(app)
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -38,10 +41,18 @@ def Register():
     dob = data.get('dob')  
     gender = data.get('gender')
     course = data.get('course')
+    name= data.get('name')
 
    
-    if not all([username, password, email, dob, gender, course]):
-        return jsonify({'success': False, 'error': 'All fields are required.'}), 400
+    if not all([username, password, email, dob, gender, course,name]):
+        return jsonify({'success': False, 'error': 'All fields are required.'}),    
+
+    try:
+        dob = datetime.datetime.strptime(dob, "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({'success': False, 'error': 'Invalid date format.'}), 400
+
+
 
    
     if User.query.filter_by(username=username).first():
@@ -56,7 +67,8 @@ def Register():
         email=email,
         dob=dob,
         gender=gender,
-        course=course
+        course=course,
+        name=name,
     )
 
     
@@ -69,11 +81,211 @@ def Register():
         return jsonify({'success': False, 'error': str(e)}), 500
     
 
+
+
+
+# -------------------- COURSE FUNCTIONALITY -------------------- #
+
 @app.route('/courses', methods=['GET'])
 def get_courses():
     courses = Course.query.all()
     return jsonify([{'id': course.id, 'name': course.name} for course in courses])
 
+@app.route('/add-course', methods=['POST'])
+def add_course():
+    data = request.json
+    new_course = Course(name=data.get('name'))
+
+    db.session.add(new_course)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Course added successfully'})
+
+@app.route('/delete-course/<int:course_id>', methods=['DELETE'])
+def delete_course(course_id):
+    course = Course.query.get(course_id)
+    if course:
+        db.session.delete(course)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Course deleted successfully'})
+    return jsonify({'error': 'Course not found'}), 404
+
+# -------------------- SUBJECT FUNCTIONALITY -------------------- #
+
+@app.route('/subjects/<int:course_id>', methods=['GET'])
+def get_subjects(course_id):
+    subjects = Subject.query.filter_by(course_id=course_id).all()
+    return jsonify([
+        {'id': subject.id, 'name': subject.name, 'courseId': subject.course_id}
+        for subject in subjects
+    ])
+
+
+@app.route('/add-subject', methods=['POST'])
+def add_subject():
+    data = request.json
+    new_subject = Subject(name=data.get('name'), course_id=data.get('course_id'))
+
+    db.session.add(new_subject)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Subject added successfully'})
+
+@app.route('/delete-subject/<int:subject_id>', methods=['DELETE'])
+def delete_subject(subject_id):
+    subject = Subject.query.get(subject_id)
+    if subject:
+        db.session.delete(subject)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Subject deleted successfully'})
+    return jsonify({'error': 'Subject not found'}), 404
+
+# -------------------- CHAPTER FUNCTIONALITY -------------------- #
+
+@app.route('/chapters/<int:subject_id>/<int:course_id>', methods=['GET'])
+def get_chapters(subject_id, course_id):
+    subject = Subject.query.filter_by(id=subject_id, course_id=course_id).first()
+    if not subject:
+        return jsonify({'error': 'Subject not found for this course'}), 404
+
+    chapters = Chapter.query.filter_by(subject_id=subject.id).all()
+    return jsonify([
+        {'id': chapter.id, 'name': chapter.name, 'subjectId': chapter.subject_id, 'courseId': subject.course_id}
+        for chapter in chapters
+    ])
+
+@app.route('/add-chapter', methods=['POST'])
+def add_chapter():
+    data = request.json
+    new_chapter = Chapter(name=data.get('name'), subject_id=data.get('subject_id'))
+
+    db.session.add(new_chapter)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Chapter added successfully'})
+
+@app.route('/delete-chapter/<int:chapter_id>', methods=['DELETE'])
+def delete_chapter(chapter_id):
+    chapter = Chapter.query.get(chapter_id)
+    if chapter:
+        db.session.delete(chapter)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Chapter deleted successfully'})
+    return jsonify({'error': 'Chapter not found'}), 404
+
+
+@app.route('/edit-course/<int:course_id>', methods=['PUT'])
+def edit_course(course_id):
+    data = request.json
+    conn = get_db()
+    conn.execute('UPDATE course SET name = ? WHERE id = ?', (data.get('name'), course_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Course updated successfully'})
+
+# Edit Subject Route
+@app.route('/edit-subject/<int:subject_id>', methods=['PUT'])
+def edit_subject(subject_id):
+    data = request.json
+    conn = get_db()
+    conn.execute('UPDATE subject SET name = ? WHERE id = ?', (data.get('name'), subject_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Subject updated successfully'})
+
+# Edit Chapter Route
+@app.route('/edit-chapter/<int:chapter_id>', methods=['PUT'])
+def edit_chapter(chapter_id):
+    data = request.json
+    conn = get_db()
+    conn.execute('UPDATE chapter SET name = ? WHERE id = ?', (data.get('name'), chapter_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Chapter updated successfully'})
+
+
+
+#####--------Quiz_Management --------------------#################
+
+@app.route('/api/get_questions/<int:chapter_id>', methods=['GET'])
+def get_questions_by_chapter(chapter_id):
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+
+    query = """
+    SELECT 
+        q.id, 
+        q.text, 
+        o.text AS option_text, 
+        o.is_correct 
+    FROM 
+        question q 
+    JOIN 
+        option o ON q.id = o.question_id 
+    WHERE 
+        q.chapter_id = ?
+    """
+
+    cursor.execute(query, (chapter_id,))
+    data = cursor.fetchall()
+
+    questions = {}
+    for row in data:
+        question_id, question_text, option_text, is_correct = row
+        if question_id not in questions:
+            questions[question_id] = {
+                'id': question_id,
+                'text': question_text,
+                'options': [],
+                'correctAnswer': None 
+            }
+        questions[question_id]['options'].append({'text': option_text})
+
+        
+        if is_correct == 1:
+            questions[question_id]['correctAnswer'] = option_text  
+
+    connection.close()
+    return jsonify(list(questions.values()))
+def get_questions(chapter_id):
+    try:
+        questions = get_questions_by_chapter(chapter_id)
+        return jsonify(questions)
+    except Exception as e:
+        return jsonify({'error': 'Failed to fetch questions', 'details': str(e)}), 500
+
+@app.route('/api/edit_question/<int:question_id>', methods=['PUT'])
+def edit_question(question_id):
+    data = request.json
+
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    question.text = data['question']
+    Option.query.filter_by(question_id=question.id).delete() 
+    for option_text in data['options']:
+        is_correct = (option_text == data['correctAnswer'])
+        new_option = Option(text=option_text, is_correct=is_correct, question_id=question.id)
+        db.session.add(new_option)
+
+    db.session.commit()
+    return jsonify({"message": "Question updated successfully!"})
+
+
+@app.route('/api/delete_question/<int:question_id>', methods=['DELETE'])
+def delete_question(question_id):
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    Option.query.filter_by(question_id=question.id).delete()
+    db.session.delete(question)
+    db.session.commit()
+    return jsonify({"message": "Question deleted successfully!"})
+
+
+########----------------------------End-----------------------------------#######
 
 
 if __name__ == '__main__':

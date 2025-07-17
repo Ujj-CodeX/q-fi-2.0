@@ -1,84 +1,140 @@
 <template>
-<div style="display: flex; align-items: flex-start;">
-   
+  <div style="display: flex; align-items: flex-start;">
     <div class="sidebar-card">
       <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
-      <hr>
+      
+       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
+       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
+       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
+ 
     </div>
-   <div style="flex: 2; padding: 10px;">
 
-    <h2 style="font-weight: bold; margin-left: 450px; margin-top: 50px;">Courses and Subject Management</h2>
-    <div class="card inset-card p-4 text-center" style="width: 1300px; height: 500px; margin-left: 50px; margin-top: 50px; border-radius: 10px;">
-    <div style="display: flex; align-items: flex-start; gap: 40px; margin-top: 0px;">
+    <div style="flex: 1; padding: 20px;">
+      <h2 style="font-weight: bold; text-align: center; margin-top: 30px;">Courses and Subject Management</h2>
 
-        <div class="card" style=" border-radius: 10px; width: 350px; height: 400px; margin-left: 50px; background-color: #dfe6e9; margin-top: 20px;">
-       <div class="card-body">
-          <h5 class="card-title">Courses</h5>
-          <div class="dropdown" >
-           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: white; color: black; border-radius: 10px;">
-          Choose Courses
-           </button>
-         <ul class="dropdown-menu dropdown-menu-dark">
-         <li v-for="course in courses" :key="course.id">
-            {{ course.name }}
-            <button @click="editCourse(course)">Edit</button>
-            <button @click="deleteCourse(course.id)">Delete</button>
-          </li>
-         </ul>
-         </div>
+      <div class="card inset-card p-4 text-center" style="width: 100%; margin-top: 30px; border-radius: 10px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+
           
-        <button @click="showAddSubjectForm = true" class="btn btn-primary" style="margin-top: 250px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</button>
-        </div>
-        </div>
+          <div class="card" style="border-radius: 10px; width: 350px; background-color: #dfe6e9;">
+            <div class="card-body">
+              <h5 class="card-title">Courses</h5>
+              
+              <ul class="list-group">
+                <li
+                  v-for="course in courses"
+                  :key="course.id"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ course.name }}
+                  <span>
+                    <button @click="editCourse(course)" class="btn btn-sm btn-outline-primary">Edit</button>
+                    <button @click="deleteCourse(course.id)" class="btn btn-sm btn-outline-danger ms-1" style="margin-left: 8px;">Delete</button>
+                  </span>
+                </li>
+              </ul>
 
-        <div class="card" style="border-radius: 10px; width: 350px; height: 400px; background-color: #dfe6e9; border-radius: 10px; margin-top: 20px;">
-       <div class="card-body">
-          <h5 class="card-title">Subjects</h5>
-          <div class="dropdown" >
-           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: white; color: black; border-radius: 10px;">
-          Choose Subjects
-           </button>
-         <ul class="dropdown-menu dropdown-menu-dark">
-         
-         </ul>
-         </div>
+              <button
+                @click="showAddCourseForm = true"
+                class="btn btn-primary"
+                style="margin-top: 15px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</button>
+            </div>
+          </div>
+
+          <div v-if="showAddCourseForm" class="form-card card p-3" style="width: 350px; border-radius: 10px;">
+            <h4>Add New Course</h4>
+            <input v-model="newCourseName" placeholder="Course Name" class="form-control mb-2" />
+            <button @click="addCourse" class="btn btn-success btn-sm">Add</button>
+            <button @click="showAddCourseForm = false" class="btn btn-secondary btn-sm ms-1" style="margin-top: 8px;">Cancel</button>
+          </div>
+
           
-        <a href="#" class="btn btn-primary" style="margin-top: 250px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</a>
-        </div>
-        </div>
+          <div class="card" style="border-radius: 10px; width: 350px; background-color: #dfe6e9;">
+            <div class="card-body">
+              <h5 class="card-title">Subjects</h5>
 
-        <div class="card" style="border-radius: 10px; width: 350px; height: 400px; background-color: #dfe6e9; margin-top: 20px;">
-       <div class="card-body">
-          <h5 class="card-title">Quizes</h5>
-          <div class="dropdown" >
-           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: white; color: black; border-radius: 10px;">
-          Choose Course
-           </button>
-           <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: white; color: black; border-radius: 10px; margin-left: 5px;">
-          Choose Subject
-           </button>
-         <ul class="dropdown-menu dropdown-menu-dark">
-         <li><a class="dropdown-item active" href="#">Action</a></li>
-         <li><a class="dropdown-item" href="#">Another action</a></li>
-         <li><a class="dropdown-item" href="#">Something else here</a></li>
-         <li><hr class="dropdown-divider"></li>
-         <li><a class="dropdown-item" href="#">Separated link</a></li>
-         </ul>
-         </div>
+              <select v-model="selectedCourse" @change="fetchSubjects" class="form-select mb-3" style="border-radius: 10px;">
+                <option disabled value="">Choose Course</option>
+                <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
+              </select>
+
+              <ul class="list-group">
+                <li
+                  v-for="subject in filteredSubjects"
+                  :key="subject.id"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ subject.name }}
+                  <span>
+                    <button @click="editSubject(subject)" class="btn btn-sm btn-outline-primary">Edit</button>
+                    <button @click="deleteSubject(subject.id)" class="btn btn-sm btn-outline-danger ms-1" style="margin-left: 8px;">Delete</button>
+                  </span>
+                </li>
+              </ul>
+
+              <button
+                @click="showAddSubjectForm = true"
+                class="btn btn-primary"
+                style="margin-top: 15px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</button>
+            </div>
+          </div>
+
+          <div v-if="showAddSubjectForm" class="form-card card p-3" style="width: 350px; border-radius: 10px;">
+            <h4>Add New Subject</h4>
+            <input v-model="newSubjectName" placeholder="Subject Name" class="form-control mb-2" />
+            <button @click="addSubject" class="btn btn-success btn-sm" >Add</button>
+            <button @click="showAddSubjectForm = false" class="btn btn-secondary btn-sm ms-1" style="margin-top: 8px;">Cancel</button>
+          </div>
+
           
-        <a href="#" class="btn btn-primary" style="margin-top: 250px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</a>
-        </div>
-        </div>
+          <div class="card" style="border-radius: 10px; width: 350px; background-color: #dfe6e9;">
+            <div class="card-body">
+              <h5 class="card-title">Quizzes</h5>
 
+              <select v-model="selectedCourse" @change="fetchSubjects" class="form-select mb-2" style="border-radius: 10px;">
+                <option disabled value="">Choose Course</option>
+                <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
+              </select>
 
+              <select v-model="selectedSubject" @change="fetchChapters" class="form-select mb-3" style="border-radius: 10px; margin-left: 8px;">
+                <option disabled value="">Choose Subject</option>
+                <option v-for="subject in filteredSubjects" :key="subject.id" :value="subject.id">{{ subject.name }}</option>
+              </select>
+
+              <ul class="list-group">
+                <li
+                  v-for="chapter in filteredChapters"
+                  :key="chapter.id"
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  {{ chapter.name }}
+                  <span>
+                    <button @click="editChapter(chapter)" class="btn btn-sm btn-outline-primary">Edit</button>
+                    <button @click="deleteChapter(chapter.id)" class="btn btn-sm btn-outline-danger ms-1" style="margin-left: 5px;">Delete</button>
+                  </span>
+                </li>
+              </ul>
+
+              <button
+                @click="showAddChapterForm = true"
+                class="btn btn-primary"
+                style="margin-top: 15px; border-radius: 20px; background-color: rgb(3, 3, 137);">+</button>
+            </div>
+          </div>
+
+          <div v-if="showAddChapterForm" class="form-card card p-3" style="width: 350px; border-radius: 10px;">
+            <h4>Add New Chapter</h4>
+            <input v-model="newChapterName" placeholder="Chapter Name" class="form-control mb-2" />
+            <button @click="addChapter" class="btn btn-success btn-sm">Add</button><br>
+            <button @click="showAddChapterForm = false" class="btn btn-secondary btn-sm ms-1" style="margin-top: 8px;">Cancel</button>
+          </div>
+
+        </div>
+      </div>
     </div>
-</div>
-</div>
-</div>
-
-
-
+  </div>
 </template>
+
 <script>
 import axios from 'axios';
   
@@ -93,18 +149,32 @@ import axios from 'axios';
         newSubjectName: '',
         newChapterName: '',
   
-        selectedCourse: null,
-        selectedChapterCourse: null,
-        selectedSubject: null,
+        selectedCourse:'',
+        selectedChapterCourse:'' ,
+        selectedSubject:'' ,
   
         showAddCourseForm: false,
         showAddSubjectForm: false,
         showAddChapterForm: false
       };
     },
+    
   
     mounted() {
       this.fetchCourses();
+      this.fetchChapters();
+    },
+    computed: {
+      filteredSubjects() {
+      return this.subjects.filter(sub => sub.courseId === this.selectedCourse);
+    },
+    filteredChapters() {
+      return this.chapters.filter(
+        chap => chap.courseId === this.selectedCourse && chap.subjectId === this.selectedSubject
+      );
+    },
+
+
     },
   
     methods: {
@@ -193,7 +263,7 @@ async deleteChapter(chapterId) {
   
       async fetchChapters() {
         try {
-          const response = await axios.get(`http://localhost:5000/chapters/${this.selectedSubject}`);
+          const response = await axios.get(`http://localhost:5000/chapters/${this.selectedSubject}/${this.selectedCourse}`);
           this.chapters = response.data;
         } catch (error) {
           console.error('Error fetching chapters:', error);

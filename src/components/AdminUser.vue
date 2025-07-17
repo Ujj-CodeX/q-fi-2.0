@@ -3,7 +3,10 @@
    
     <div class="sidebar-card">
       <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
-      <hr>
+      <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
+       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
+       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
+ 
     </div>
 
     

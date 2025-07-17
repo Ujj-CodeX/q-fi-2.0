@@ -103,8 +103,9 @@ export default{
                 name: this.formData.name
 
             };
+            console.log('Signup payload:', payload);
 
-            const response = await axios.post('http://localhost:5000/signUp', payload);
+            const response = await axios.post('http://localhost:5000/SignUp', payload);
   
           if (response.data.success) {
             alert(response.data.message || 'Signup successful!');

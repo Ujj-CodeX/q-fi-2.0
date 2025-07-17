@@ -8,6 +8,7 @@ import test from '../components/UserTest.vue'
 import SignUp from '@/components/SignUp.vue'
 import Admin_Login from '@/components/Admin_Login.vue'
 
+
 const routes =[
     {
         path:'/',
@@ -49,6 +50,7 @@ const routes =[
         name: 'admin',
         component : Admin_Login
     },
+    
 
 
 ]

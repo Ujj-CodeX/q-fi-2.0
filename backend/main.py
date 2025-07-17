@@ -2,10 +2,10 @@ from flask import Flask, jsonify, request,g
 from flask_cors import CORS
 from model import db, User, Course, Subject, Chapter,Question,Option,QuizResult 
 import os
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity
 import sqlite3
 import datetime
-
+from flask import jsonify, request
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +28,92 @@ def get_db():
         db = g._database = sqlite3.connect(Database)
     return db
 
+def valid_user(username, course):
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE username = ? AND course = ?', 
+                        (username, course)).fetchone()
+    conn.close()
+    return user is not None
 
+##################-- Login Setup ------#########
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db()
+    user = conn.execute('SELECT * FROM user WHERE username = ? AND password = ?', 
+                        (username, password)).fetchone()
+    conn.close()
+
+    if user:
+        identity_data = f"{username}:{user[7]}"  
+        access_token = create_access_token(identity=identity_data)
+        return jsonify({"access_token": access_token}), 200
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    identity = get_jwt_identity()  
+    print(" Protected Route - Token Data:", identity)
+
+    try:
+        username, course = identity.split(':') 
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    return jsonify({
+        "username": username,
+        "course": course
+    }), 200
+
+############################################################################
+
+####--------------User dashboard------------------#############
+
+@app.route('/subjects1', methods=['GET'])
+@jwt_required()
+def get_subjects1():
+    identity = get_jwt_identity()  
+    print("Token Data (identity):", identity)
+
+    try:
+        username, course = identity.split(':') 
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    conn = get_db()
+    subjects = conn.execute(
+        'SELECT s.id AS subject_id , s.name FROM subject s JOIN course c ON s.course_id = c.id WHERE c.name = ?;', 
+        (course,)
+    ).fetchall()
+    conn.close()
+
+    return jsonify([{"subject_id": subject[0], "name": subject[1]} for subject in subjects])
+
+@app.route('/chapters1/<subject_id>', methods=['GET'])
+@jwt_required()
+def get_chapters1(subject_id):
+    print(" Received subject_id:", subject_id)  
+
+    identity = get_jwt_identity()  
+    print(" Token Data (Chapters Route):", identity)
+
+    try:
+        username, course = identity.split(':')
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    conn = get_db()
+    chapters = conn.execute('SELECT id, name FROM chapter WHERE subject_id = ?', (subject_id,)).fetchall()
+    conn.close()
+
+    return jsonify([{"id": chapter[0], "name": chapter[1]} for chapter in chapters])
+
+##############################-----------------------------------####################3
 
 
 @app.route('/SignUp', methods=['POST'])
@@ -208,51 +293,49 @@ def edit_chapter(chapter_id):
 #####--------Quiz_Management --------------------#################
 
 @app.route('/api/get_questions/<int:chapter_id>', methods=['GET'])
-def get_questions_by_chapter(chapter_id):
-    connection = sqlite3.connect('database.db')
-    cursor = connection.cursor()
-
-    query = """
-    SELECT 
-        q.id, 
-        q.text, 
-        o.text AS option_text, 
-        o.is_correct 
-    FROM 
-        question q 
-    JOIN 
-        option o ON q.id = o.question_id 
-    WHERE 
-        q.chapter_id = ?
-    """
-
-    cursor.execute(query, (chapter_id,))
-    data = cursor.fetchall()
-
-    questions = {}
-    for row in data:
-        question_id, question_text, option_text, is_correct = row
-        if question_id not in questions:
-            questions[question_id] = {
-                'id': question_id,
-                'text': question_text,
-                'options': [],
-                'correctAnswer': None 
-            }
-        questions[question_id]['options'].append({'text': option_text})
-
-        
-        if is_correct == 1:
-            questions[question_id]['correctAnswer'] = option_text  
-
-    connection.close()
-    return jsonify(list(questions.values()))
 def get_questions(chapter_id):
+    print(f"Received request for chapter_id: {chapter_id}")
     try:
-        questions = get_questions_by_chapter(chapter_id)
-        return jsonify(questions)
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+
+        query = """
+        SELECT 
+            q.id, 
+            q.text, 
+            o.text AS option_text, 
+            o.is_correct 
+        FROM 
+            question q 
+        JOIN 
+            option o ON q.id = o.question_id 
+        WHERE 
+            q.chapter_id = ?
+        """
+
+        cursor.execute(query, (chapter_id,))
+        data = cursor.fetchall()
+
+        questions = {}
+        for row in data:
+            question_id, question_text, option_text, is_correct = row
+            if question_id not in questions:
+                questions[question_id] = {
+                    'id': question_id,
+                    'text': question_text,
+                    'options': [],
+                    'correctAnswer': None
+                }
+            questions[question_id]['options'].append({'text': option_text})
+            if is_correct == 1:
+                questions[question_id]['correctAnswer'] = option_text
+
+        connection.close()
+        return jsonify(list(questions.values()))
+
     except Exception as e:
         return jsonify({'error': 'Failed to fetch questions', 'details': str(e)}), 500
+
 
 @app.route('/api/edit_question/<int:question_id>', methods=['PUT'])
 def edit_question(question_id):
@@ -285,7 +368,42 @@ def delete_question(question_id):
     return jsonify({"message": "Question deleted successfully!"})
 
 
+@app.route('/api/questions', methods=['POST'])
+def add_question():
+    data = request.json
+
+    # Step 1: Add the Question
+    new_question = Question(
+        text=data.get('question'),
+        chapter_id=data.get('chapter')
+    )
+    db.session.add(new_question)
+    db.session.commit()
+
+    # Step 2: Add Options
+    options_data = data.get('options', [])
+    correct_answer = data.get('correctAnswer')
+
+    for option_text in options_data:
+        is_correct = option_text == correct_answer
+        new_option = Option(
+            text=option_text,
+            is_correct=is_correct,
+            question_id=new_question.id  # Link options to the newly created question
+        )
+        db.session.add(new_option)
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'message': 'Question and options added successfully!',
+        'question_id': new_question.id
+    })
+
+
 ########----------------------------End-----------------------------------#######
+
 
 
 if __name__ == '__main__':

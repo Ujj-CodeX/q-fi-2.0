@@ -9,13 +9,13 @@
 
     <div style="display: flex; align-items: flex-start; gap: 120px; margin-top: 0px;">
       <div class="card" style="height: 350px; width: 330px; margin-left: 200px; margin-top: 50px; border-radius: 10px;">
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleLogin">
           <div class="mb-3" style="width: 290px; margin-left: 20px; margin-top: 20px;">
             <label for="username" class="form-label" style="color: black; font-weight: bold;">Username</label>
-            <input type="text" class="form-control" id="username" v-model="username" placeholder="Username">
+            <input  type="text" class="form-control" id="username" v-model="username" placeholder="Username">
 
             <label for="password" class="form-label" style="color: black; font-weight: bold; margin-top: 10px;">Password</label>
-            <input type="password" class="form-control" id="password" v-model="password" placeholder="Password">
+            <input  type="password" class="form-control" id="password" v-model="password" placeholder="Password">
 
             <button type="submit" class="btn btn-primary" style="margin-top: 20px; width: 290px; background-color: rgb(3, 3, 137); color: white;">Sign In</button>
             <a href="/forgot_user" style=" font-weight: bold; display: block; text-decoration: underline; color:black; margin-top: 15px;">Forgot Password?</a>
@@ -86,12 +86,66 @@
   </div>
 </template>
 
-<script setup>
+<script>
+import axios from 'axios';
 
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      errorMessage: '',
+      loading: false
+    };
+  },
+  methods: {
+    async handleLogin() {
+      this.loading = true;
+      this.errorMessage = '';
 
-function handleBookNow() {
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/login', 
+          {
+            username: this.username,
+            password: this.password
+          }, 
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.status === 200 && response.data.access_token) {
+          localStorage.setItem('token', response.data.access_token); 
+          this.$router.push('/User');  
+        } else {
+          this.errorMessage = 'Unexpected response from the server.';
+        }
+      } catch (error) {
+        if (error.response) {
+          this.errorMessage = error.response.data.error || 'Invalid credentials.';
+        } else if (error.request) {
+          this.errorMessage = 'No response from server. Please check your connection.';
+        } else {
+          this.errorMessage = 'Error occurred during request.';
+        }
+      } finally {
+        this.loading = false;
+      }
+    }
+  },
+  handleBookNow() {
   alert(`Thannks for your Interest Login with your Student ID to start acing your Grades.`)
 }
+
+
+}
+
+
+
+
 </script>
 
 

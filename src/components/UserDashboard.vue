@@ -77,19 +77,162 @@
   <div v-for="(chapter, index) in chapters"
        :key="index"
        class="quiz-item"
-       @click="navigateToQuiz(chapter.name)">
+       @click="openQuizCard(chapter.name)">>
       
     <span>{{ chapter.name }}</span>
   </div>
 </div>
 </div>
     
+
+<div v-if="showcard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
+ <h2 style="font-weight: bold; color:rgb(3, 3, 137) ; margin-top: 50px;">Good Start Buddy</h2>
+ <h6 style="font-weight: bold;  margin-top: 10px;">Just one step - Please Choose your Preferences</h6>
+ <h2 style="font-weight: bold; color:black ; margin-top: 10px;">Quiz Name: {{ name }}</h2>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 20px;">
+  <div class="form-group mb-3">
+          
+          <select id="duration" class="form-control" v-model="quizSettings.duration" style="border-radius: 10px; background-color: rgb(3, 3, 137); color: white;">
+            <option disabled value=""> Select Duration</option>
+            <option>10 Minutes</option>
+            <option>20 Minutes</option>
+            <option>30 Minutes</option>
+          </select>
+        </div>
+
+        
+        <div class="form-group mb-3">
+          
+          <select id="questions" class="form-control" v-model="quizSettings.questions" style="border-radius: 10px; background-color: rgb(3, 3, 137); color: white;">
+            <option disabled value=""> Select Number of Questions </option>
+            <option>5</option>
+            <option>10</option>
+            <option>15</option>
+          </select>
+        </div>
+</div>
+
+
+        <div class="start-quiz-btn">
+            <button class="btn btn-success" @click="startQuiz">Start Quiz</button>
+        </div>
+
+        
+
+      <img :src="require('@/assets/85.jpg')" style="height: 200px; width: 250px; margin-left: 450px; ">  
+
+
+
+
+  </div>
+  </div>
+  
+
        
 
 
 </template>
 <script>
+import axios from 'axios';
+export default {
+  data() {
+    return {
+      subjects: [],   
+      chapters: [],   
+      selectedSubjectId: null,
+      showcard:false, 
+      selectedChapterName: '',
+      quizName: this.$route.params.quizName || "Quiz",
+            quizSettings: {
+                duration: "",
+                questions: ""
+            }
+ 
+    };
+  },
 
+  
+  mounted() {
+    this.fetchSubjects();
+    console.log('JWT Token:', localStorage.getItem('token'));
+
+  },
+  methods: {
+    async fetchSubjects() {
+  try {
+    const token = localStorage.getItem('token');  // Retrieve token from storage
+
+    const response = await axios.get('http://localhost:5000/subjects1', {
+      headers: {
+        'Authorization': `Bearer ${token}`  // Include token in the request
+      }
+    });
+
+    this.subjects = response.data;
+  } catch (error) {
+    console.error('Error fetching subjects:', error);
+  }
+},
+async fetchChapters(subjectId) {
+    this.selectedSubjectId = subjectId;
+    const token = localStorage.getItem('token');
+
+    
+    if (!token) {
+        alert('Session expired or not logged in. Redirecting to login page...');
+        this.$router.push('/');
+        return;
+    }
+
+    try {
+        const response = await axios.get(`http://localhost:5000/chapters1/${subjectId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        
+        if (!response.data || response.data.length === 0) {
+            alert('No chapters available for the selected subject.');
+            this.chapters = [];
+            return;
+        }
+
+        this.chapters = response.data;
+    } catch (error) {
+        
+        if (error.response) {
+            if (error.response.status === 401) {
+                alert('Unauthorized access. Please log in again.');
+                this.$router.push('/');
+            } else if (error.response.status === 404) {
+                alert('No chapters found for the selected subject.');
+                this.chapters = [];
+            } else {
+                alert(`Error: ${error.response.status} - ${error.response.data.message || 'Unknown error occurred'}`);
+            }
+        } else if (error.request) {
+            alert('Server is not responding. Please try again later.');
+        } else {
+            console.error('Error fetching chapters:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+    }
+},openQuizCard(chapterName) {
+  this.name = chapterName;
+  this.showcard = true;
+
+},
+setOption(type, value) {
+            this.quizSettings[type] = value;
+        },
+
+
+
+}
+
+}
 </script>
 <style scoped>
 .service-img {

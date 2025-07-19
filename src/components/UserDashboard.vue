@@ -20,7 +20,7 @@
 
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0px; margin-left: 100px">
             <div  style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/10.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px;">
+                <img :src="require('@/assets/10.png')" @click="openLeaderboard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px;">
                 <h7 style="margin-left: 20px; font-weight: bold; font-size: medium; margin-top: 20px;" >Leaderboard</h7>
             </div>
 
@@ -34,12 +34,12 @@
         
 
             <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/7.jpg')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
+                <img :src="require('@/assets/7.jpg')" @click="toggleScoreCard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
                 <h7 style="margin-left: 10px; font-weight: bold; font-size: medium; margin-top: 20px;" >Score Overtime</h7>
             </div>
 
             <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/9.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px;  border-radius: 8px;">
+                <img :src="require('@/assets/9.png')" @click="openattemptcard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px;  border-radius: 8px;">
                 <h7 style="margin-left: 20px; margin-top: 20px; font-weight: bold; font-size: medium;" >Past attempts</h7>
                 
             </div>
@@ -130,6 +130,105 @@
   </div>
   </div>
   
+<div v-if="showleaderboard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
+
+<h3 class="text-center mb-4">🏆 Quiz Leaderboard</h3>
+
+      
+      <div class="alert alert-info text-center mb-4" v-if="loggedInUser">
+  <span v-if="userRank">
+    You are currently ranked <strong>#{{ userRank }}</strong> - <strong>{{ loggedInUser }}</strong>
+  </span>
+  <span v-else>
+    You haven’t attempted this quiz yet.
+  </span>
+</div>
+
+      
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-hover table-bordered text-center">
+          <thead class="table-dark sticky-top">
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(user, index) in leaderboard"
+              :key="user.username"
+              :class="{ 'table-primary': user.username === loggedInUser }"
+            >
+              <td>#{{ index + 1 }}</td>
+              <td>{{ user.username }}</td>
+              
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+
+</div>
+</div>
+
+
+<div v-if="showScoreCard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
+
+<h3 style="text-align: center;">Score Over Time</h3>
+    <table class="table table-hover table-bordered text-center">
+      <thead>
+        <tr>
+          <th>Quiz Name</th>
+          <th>Score</th>
+          <th>Submitted On</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in scoreHistory" :key="row.timestamp">
+          <td>{{ row.quiz_name }}</td>
+          <td>{{ row.score }}</td>
+          <td>{{ row.timestamp }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button @click="toggleScoreCard" class="btn btn-danger" style="width: 200px; margin-left:500px;">Close</button>
+
+
+</div>
+</div>
+
+<div v-if="showpast" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
+<h5 class="mb-3">📚 Past Quiz Attempts</h5>
+    <button class="btn btn-danger mb-3" @click="showpast = false" style="width: 200px; margin-left:500px;">Close</button>
+
+    <div style="max-height: 400px; overflow-y: auto;">
+      <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark sticky-top">
+          <tr>
+            <th>#</th>
+            <th>Quiz Name</th>
+            <th>Submitted On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(attempt, index) in pastAttempts" :key="index">
+            <td>{{ index + 1 }}</td>
+            <td>{{ attempt.quiz_name }}</td>
+            <td>{{ attempt.submission_time }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  </div>
 
        
 
@@ -143,13 +242,22 @@ export default {
       subjects: [],   
       chapters: [],   
       selectedSubjectId: null,
-      showcard:false, 
+      showcard:false,
+      showleaderboard:false, 
       selectedChapterName: '',
             quizSettings: {
                 duration: "",
                 questions: "",
                 quizName:""
-            }
+            },
+      leaderboard: [],
+      loggedInUser: null,
+      userRank: null,
+     selectedQuiz: null,
+     showScoreCard: false,
+    scoreHistory: [],
+    showpast: false,
+    pastAttempts: []
  
     };
   },
@@ -246,11 +354,82 @@ startQuiz() {
       questions: questions
     }
   });
+},
+async fetchLeaderboard() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`http://localhost:5000/leaderboard`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      this.leaderboard = response.data.leaderboard;
+      this.userRank = response.data.userRank;
+      this.loggedInUser = response.data.currentUser;
+
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+    }
+  }
+,
+
+  getUserRank(username) {
+    const entry = this.leaderboard.findIndex(user => user.username === username);
+    return entry !== -1 ? entry + 1 : 'N/A';
+  },
+
+  openLeaderboard() {
+    
+    this.showleaderboard = true;
+    this.fetchLeaderboard();
+  },
+
+  toggleScoreCard() {
+    this.showScoreCard = !this.showScoreCard;
+    if (this.showScoreCard) {
+      this.fetchScoreHistory();
+    }
+  },
+  async fetchScoreHistory() {
+    try {
+      const response = await fetch("http://localhost:5000/score-history", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+
+      if (response.ok) {
+        this.scoreHistory = await response.json();
+      } else {
+        console.error("Failed to fetch score history");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  },
+openattemptcard() {
+  this.showpast = true;
+  this.fetchPastAttempts(); // Trigger data fetch when opening
+},
+
+async fetchPastAttempts() {
+  try {
+    const response = await axios.get('http://localhost:5000/past_attempts', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    this.pastAttempts = response.data.attempts;
+  } catch (error) {
+    console.error("Error fetching past attempts:", error);
+    alert("Unable to load past attempts. Please try again.");
+  }
 }
 
+  
 
-
-
+  
 
 
 }

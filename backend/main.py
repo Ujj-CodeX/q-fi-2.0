@@ -7,6 +7,7 @@ import sqlite3
 import datetime
 from datetime import timezone
 from flask import jsonify, request
+from sqlalchemy import func, distinct
 
 app = Flask(__name__)
 CORS(app)
@@ -429,7 +430,8 @@ def submit_quiz():
 
     quiz_name = data.get('quizName')
     user_id = username
-    user_answers = data.get('userAnswers', {})
+    user_answers = data.get('userAnswers') or data.get('userAnswersObject') or {}
+
 
     if not quiz_name or not user_id:
         return jsonify({"error": "quizName or userID missing"}), 400
@@ -456,10 +458,10 @@ def submit_quiz():
     if not correct_answers:
         return jsonify({"error": "No questions found for this quiz"}), 404
 
-    correct_answer_dict = {str(row['id']): row['correct_answer'] for row in correct_answers}
+    correct_answer_dict = {str(row[0]): row[1] for row in correct_answers}
 
     
-    score = sum(1 for q_id, selected_option in user_answers.items()
+    score = sum(5 for q_id, selected_option in user_answers.items()
                 if correct_answer_dict.get(q_id) == selected_option)
 
     
@@ -472,7 +474,7 @@ def submit_quiz():
         data.get('duration', 0),
         len(correct_answers),
         score,
-        datetime.now(timezone.utc)
+        datetime.datetime.now(timezone.utc)
     ))
 
     conn.commit()
@@ -514,7 +516,7 @@ def getquestions():
     conn.close()
 
     if not questions:
-        print("⚠️ No questions fetched. Check chapter name or DB data.")
+        print(" No questions fetched. Check chapter name or DB data.")
 
     result = {}
     for row in questions:
@@ -526,11 +528,103 @@ def getquestions():
                 'options': []
             }
         result[q_id]['options'].append({
-            'id': row[0],
-            'text': row[1]
+            'id': row[2],
+            'text': row[3]
         })
 
     return jsonify(list(result.values()))
+
+
+@app.route('/leaderboard', methods=['GET'])
+@jwt_required()
+def get_leaderboard():
+    identity = get_jwt_identity()
+    try:
+        username, _ = identity.split(":")
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    # Count total quiz attempts per user
+    results = db.session.query(
+        QuizResult.user_id,
+        db.func.count(QuizResult.id).label('attempts')
+    ).group_by(QuizResult.user_id).order_by(db.desc('attempts')).all()
+
+    leaderboard = []
+    user_rank = None
+
+    for idx, row in enumerate(results, start=1):
+        leaderboard.append({
+            "username": row.user_id,
+            "score": row.attempts  # score == total attempts
+        })
+
+        if row.user_id == username:
+            user_rank = idx
+
+    return jsonify({
+        "leaderboard": leaderboard,
+        "userRank": user_rank,
+        "currentUser": username
+    })
+
+@app.route('/score-history', methods=['GET'])
+@jwt_required()
+def get_score_history():
+    identity = get_jwt_identity()
+    try:
+        username, _ = identity.split(":")
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    results = QuizResult.query.filter_by(user_id=username).order_by(QuizResult.submission_time.desc()).all()
+
+    score_data = [{
+        "quiz_name": result.quiz_name,
+        "score": result.score,
+        "timestamp": result.submission_time.strftime("%Y-%m-%d %H:%M:%S")
+    } for result in results]
+
+    return jsonify(score_data)
+
+@app.route('/past_attempts', methods=['GET'])
+@jwt_required()
+def get_past_attempts():
+    identity = get_jwt_identity()
+    try:
+        username, _ = identity.split(":")
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    attempts = QuizResult.query.filter_by(user_id=username).order_by(QuizResult.submission_time.desc()).all()
+
+    results = []
+    for row in attempts:
+        results.append({
+            "quiz_name": row.quiz_name,
+            "submission_time": row.submission_time.strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    return jsonify({"attempts": results}), 200
+@app.route('/api/quiz-attempts', methods=['GET'])
+def get_quiz_attempts():
+   
+    results = db.session.query(
+        QuizResult.quiz_name,
+        func.count(func.distinct(QuizResult.user_id)).label('attempts')
+    ).group_by(QuizResult.quiz_name).all()
+
+    
+    response_data = []
+    for quiz_name, attempts in results:
+        subject = Subject.query.filter_by(name=quiz_name).first()
+        subject_name = subject.name if subject else quiz_name  
+        response_data.append({
+            'subject': subject_name,
+            'attempts': attempts
+        })
+
+    return jsonify(response_data)
 
 
 if __name__ == '__main__':

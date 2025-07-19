@@ -17,9 +17,27 @@
       <div style="display: flex; gap: 40px; margin-top: 50px;">
         <div class="card inset-card p-4 text-center" style="flex: 2; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">Quiz Name vs No of User attempts</h6>
+<div style="height: 400px;"> 
+     <Bar v-if="chartData" :data="chartData" :options="chartOptions" />
+        <div v-else>Loading chart...</div>
+  </div>
         </div>
         <div class="card inset-card p-4 text-center" style="flex: 1; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">Quiz Name and No of attempts</h6>
+          <table class="table table-bordered">
+        <thead style="background-color: #f0f0f0;">
+          <tr>
+            <th>Quiz Name</th>
+            <th>No. of Attempts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in quizAttempts" :key="item.subject_name">
+            <td>{{ item.subject }}</td>
+            <td>{{ item.attempts }}</td>
+          </tr>
+        </tbody>
+      </table>
         </div>
       </div>
 
@@ -45,8 +63,74 @@
     </div>
   </div>
 </template>
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+} from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+
+const chartData = ref(null)
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: { display: false },
+    title: { display: true, text: 'Attempts by Subject' }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { stepSize: 1 }
+    }
+  }
+}
+
+// Store attempts for the table
+const quizAttempts = ref([])
+
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem('token')
+    const response = await axios.get('http://localhost:5000/api/quiz-attempts', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    // Store in ref for table
+    quizAttempts.value = response.data
+
+    const subjects = response.data.map(item => item.subject)
+    const attempts = response.data.map(item => item.attempts)
+
+    chartData.value = {
+      labels: subjects,
+      datasets: [{
+        label: 'Attempts',
+        backgroundColor: '#42A5F5',
+        data: attempts
+      }]
+    }
+  } catch (error) {
+    console.error('Error loading chart data:', error)
+  }
+})
+</script>
+
 
 <style scoped>
+  canvas {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
 .sidebar-card {
   width: 250px;
   border-radius: 15px;

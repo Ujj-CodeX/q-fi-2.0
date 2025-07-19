@@ -1,22 +1,24 @@
 <template>
 
-    <div style="display: flex; align-items: flex-start; gap: 300px; margin-top: 50px;">
+    <div style="display: flex; align-items: flex-start; gap: 500px; margin-top: 50px;">
    
     
-      <h5 style="color: black; font-weight: bold; margin-left: 300px;">Quiz Name:-</h5>
-      <h5 style="color: black; font-weight: bold; margin-left: 20px;">No. of Question:-</h5>
-      <h5 style="color: black; font-weight: bold; margin-left: 20px;">Duration:-</h5>
+      <div style="display: flex; align-items: center; gap: 60px; margin: 40px 0 0 180px;">
+  <h3 style="color: blue; font-weight: bold;">Quiz Name: {{ quizTitle }}</h3>
+  <h3 style="color: blue; font-weight: bold;">No. of Questions: {{ totalQuestions }}</h3>
+  <h3 style="color: blue; font-weight: bold;">Duration: {{ quizDurationMinutes }} min</h3>
+</div>
       
     
     </div>
 
     <div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 50px;">
 
-    <div class="card inset-card p-4 text-center" style="width: 1000px; height: 500px; margin-left: 50px; margin-top: 50px; border-radius: 10px;">
+    <div class="card inset-card p-4 text-center" style="width: 1000px; height: auto; margin-left: 50px; margin-top: 50px; border-radius: 10px;">
      <div v-if="currentQuestionIndex < questionsCopy.length" class="question-card">
-    <p>{{ questionsCopy[currentQuestionIndex].text }}</p>
+    <h4 style="font-weight: bold; color: black;">{{ questionsCopy[currentQuestionIndex].text }}</h4>
 
-    <div v-for="(option, i) in questionsCopy[currentQuestionIndex].options" :key="i">
+    <div v-for="(option, i) in questionsCopy[currentQuestionIndex].options" :key="i" style="font-weight: bold; color: black; font-size: large;">
     <input 
         type="radio" 
         :name="'question-' + questionsCopy[currentQuestionIndex].id" 
@@ -36,7 +38,7 @@
     <div style="display: flex; align-items: flex-start; gap: 300px; margin-top: 350px;">
         <button class="btn btn-primary" @click="prevQuestion"  style=" margin-left: 50px; margin-top: 50px; border-radius: 20px; background-color: green">Previous</button>
 
-        <button class="btn btn-primary"  style="  margin-top: 50px; border-radius: 20px; background-color: green">Submit</button>
+       
 
         <button class="btn btn-primary" @click="currentQuestionIndex < questionsCopy.length - 1 ? nextQuestion() : submitQuiz()" style=" margin-top: 50px; border-radius: 20px; background-color: green">{{ currentQuestionIndex < questionsCopy.length - 1 ? 'Next' : 'Submit' }}</button>
     </div>
@@ -84,13 +86,23 @@ import axios from 'axios';
         currentQuestionIndex: 0,
         isLoading: false,
         remainingTime: parseInt(this.duration) * 60 || 300, 
-        timer: null
+        timer: null,
+        quizTitle: "",
+        totalQuestions: 0,
+        quizDurationMinutes: 0,
       };
     },
     created() {
-  this.remainingTime = (parseInt(this.$route.query.duration) || 5) * 60;
-  this.totalQuestions = parseInt(this.$route.query.questions) || 10;
+     
+  const duration = parseInt(this.$route.query.duration) || 5;  
+
   this.quizTitle = this.$route.query.quizName || "Untitled Quiz";
+  this.quizDurationMinutes = duration;                         
+  this.remainingTime = duration * 60;                        
+  this.totalQuestions = parseInt(this.$route.query.questions) || 10;
+
+  this.startTimer(); 
+
 
 
 
@@ -192,10 +204,11 @@ async submitQuiz() {
             userAnswersObject[questionId] = null;
         }
     });
-
+     console.log("Quiz name:", this.$route.query.quizName);  
     const payload = {
-        quizName: this.quizName,
-        userAnswers: this.userAnswers,
+        quizName: this.$route.query.quizName,
+        userAnswers: userAnswersObject,
+
         duration: this.remainingTime
     };
 

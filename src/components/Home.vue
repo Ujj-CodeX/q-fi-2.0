@@ -134,12 +134,12 @@ export default {
       } finally {
         this.loading = false;
       }
-    }
-  },
+    },
+  
   handleBookNow() {
   alert(`Thannks for your Interest Login with your Student ID to start acing your Grades.`)
 }
-
+},
 
 }
 

@@ -65,6 +65,23 @@ class Admin(db.Model):
     username = db.Column(db.String(80), nullable=False)
     password= db.Column(db.String(200), nullable=False)
 
+class Review2(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), nullable=False)
+    review = db.Column(db.Text, nullable=False)
+
+
+class QuizRating(db.Model):
+    __tablename__ = 'quiz_rating'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    quiz_name = db.Column(db.String(200), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # should be 1 to 5
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+
 with app.app_context():
     db.create_all()
     print(" Database and all tables created successfully.")

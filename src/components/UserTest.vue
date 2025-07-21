@@ -80,8 +80,11 @@
       
 
       <img :src="require('@/assets/88.jpg')" style="height: 200px; width: 350px; margin-left: 200px; "> 
+      
 </div>
-
+<p v-if="message" :style="{ color: messageColor, marginLeft: '50px', marginTop: '20px' }">
+        {{ message }}
+      </p>
 
 
 </div>
@@ -123,6 +126,8 @@ import axios from 'axios';
         showRatingCard: false,
         rating:0,
         hover:0,
+        quizname:"",
+        message:"",
 
       };
     },
@@ -272,18 +277,33 @@ closeOverlay(){
   this.showRatingCard = false
   this.$router.push('/User');
 },
-submitRating(){
-  axios.post('http://localhost:5000/submit_rating', {
-        quizname: this.quizname,
-        rating: this.rating,
-      }).then(() => {
-        alert('Thanks for your feedback!')
-        this.$router.push('/User'); 
-      }).catch(err => {
+async submitRating(){
+ 
+
+      const token = localStorage.getItem('token')
+
+      
+      if (!token) {
+        alert('You must be logged in to rate.')
+        return
+      }
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const username = payload.sub.split(':')[0]  
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/submit_quiz_rating',
+          {
+            username:username,
+            quizname: this.$route.query.quizName,
+            rating: this.rating
+          }
+        )
+        this.message = response.data.message
+      } catch (err) {
         console.error(err)
-        alert('Failed to submit rating.')
-      })
-    },
+        this.message = 'Failed to submit rating.'
+      }
+    }
 
 
 

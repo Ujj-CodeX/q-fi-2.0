@@ -14,7 +14,7 @@
 
 
               
-                <form action="{{ url_for('admin') }}" method="post">
+                <form @submit.prevent="handleLogin" >
 
 
                 
@@ -24,13 +24,19 @@
                 <br>
                 
                 
-                <input type="username" class="form-control" id="username" placeholder="Username" name="username" style="font-weight: bold;"><br>
+                <input type="username" class="form-control" id="username" v-model="username" placeholder="Username" name="username" style="font-weight: bold;"><br>
                 
                 
                
-                <input type="password" class="form-control" id="Password" placeholder="Password" name="password" style="font-weight: bold;"><br>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100px ;  border-radius: 15px; background-color: rgb(3, 3, 137); color: white;" >Log IN</button>
-                
+                <input type="password" class="form-control" id="Password" v-model="password" placeholder="Password" name="password" style="font-weight: bold;"><br>
+                <button 
+  :disabled="loading" 
+  type="submit" 
+  class="btn btn-primary"
+  style="margin-top: 10px; width: 100px; border-radius: 15px; background-color: rgb(3, 3, 137); color: white;"
+>
+  {{ loading ? 'Logging in...' : 'Log IN' }}
+</button>
                 
                 </form>
             
@@ -43,6 +49,60 @@
         </div>
 </div>
 </template>
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      username: '',
+      password: '',
+      errorMessage: '',
+      loading: false
+    };
+  },
+  methods: {
+    async handleLogin() {
+      this.loading = true;
+      this.errorMessage = '';
+
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/Admin_login', 
+          {
+            username: this.username,
+            password: this.password
+          }, 
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.status === 200 ) { 
+          this.$router.push('/Admin_dash');
+        } else {
+          this.errorMessage = 'Unexpected response from the server.';
+        }
+      } catch (error) {
+        if (error.response) {
+          this.errorMessage = error.response.data.error || 'Invalid credentials.';
+        } else if (error.request) {
+          this.errorMessage = 'No response from server. Please check your connection.';
+        } else {
+          this.errorMessage = 'Error occurred during request.';
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+  
+  
+},
+
+}
+</script>
 <style>
 .my-card {
   height: 600px; /* default for desktop */

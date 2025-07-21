@@ -234,19 +234,34 @@
 
 
    <div style="display: flex; gap: 200px; margin-top: 100px;">
-      <img :src="require('@/assets/87.png')" style="height: 300px; width: 400px; margin-top: 100px; margin-left: 300px;">
+    <img :src="require('@/assets/87.png')" style="height: 300px; width: 400px; margin-top: 100px; margin-left: 300px;" />
 
+    <div class="card" style="height: 380px; width: 500px; border-radius: 15px; background-color: white; margin-top: 50px;">
+      <div class="mb-3" style="width: 250px; margin-left: 25px; margin-top: 20px;">
+        <h5 style="color: black; margin-left: 10px;">Write a Customer Review</h5>
+      </div>
 
-  <div class="card" style="height: 380px; width: 500px; border-radius: 15px; background-color: white; margin-top: 50px;">
-          <div class="mb-3" style="width: 250px; margin-left: 25px; margin-top: 20px;">
-          <h5 style="color: black; margin-left: 10px;">Write a Customer Review</h5>
+      <div class="d-flex" style="margin-top: 40px; width: 500px;">
+        <textarea
+          v-model="review"
+          class="form-control mr-2"
+          style="margin-left: 50px; height: 200px; width: 300px;"
+          placeholder="Write your review here"
+        ></textarea>
+        <button
+          class="btn btn-outline-light"
+          @click="submitReview"
+          style="width: 100px; color: white; background-color: rgb(3, 3, 137);"
+        >
+          Submit
+        </button>
       </div>
-      <form class="d-flex" style="margin-top: 40px; width: 500px;" action="/cust_ds" method="post">
-        <textarea class="form-control mr-2" style="margin-left: 50px; height: 200px; width: 300px;" name="review" placeholder="Review" aria-label="Write your review here"></textarea>
-        <button class="btn btn-outline-light" type="submit" name="submit_review" style="width: 100px; color: white; background-color: rgb(3, 3, 137);">Submit Review</button>
-      </form>
-      </div>
-  </div> 
+
+      <p v-if="message" :style="{ color: messageColor, marginLeft: '50px', marginTop: '20px' }">
+        {{ message }}
+      </p>
+    </div>
+  </div>
 
 
        
@@ -258,6 +273,9 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      review: '',
+      message: '',
+      messageColor: 'green',
       subjects: [],   
       chapters: [],   
       selectedSubjectId: null,
@@ -294,7 +312,7 @@ export default {
 
     const response = await axios.get('http://localhost:5000/subjects1', {
       headers: {
-        'Authorization': `Bearer ${token}`  // Include token in the request
+        'Authorization': `Bearer ${token}` 
       }
     });
 
@@ -471,7 +489,40 @@ downloadReport() {
     window.URL.revokeObjectURL(url); // Free up memory
   })
   .catch(err => console.error('❌ Error downloading report:', err));
-}
+},
+async submitReview(e) {
+
+      e.preventDefault()
+
+      const token = localStorage.getItem('token')
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const username = payload.sub.split(':')[0] 
+
+      if (!this.review) {
+        this.message = 'Please write a review before submitting.';
+        this.messageColor = 'red';
+        return;
+      }
+
+      try {
+        const response = await axios.post('http://localhost:5000/submit_review', {
+          username: username || 'Anonymous', 
+          review: this.review
+        });
+
+        if (response.data.success) {
+          this.message = 'Review submitted successfully!';
+          this.messageColor = 'green';
+          this.review = '';
+        } else {
+          this.message = response.data.error || 'Something went wrong.';
+          this.messageColor = 'red';
+        }
+      } catch (error) {
+        this.message = 'Failed to submit review. Server error.';
+        this.messageColor = 'red';
+      }
+    }
 
 
   

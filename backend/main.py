@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request,g
 from flask_cors import CORS
-from model import db, User, Course, Subject, Chapter,Question,Option,QuizResult 
+from model import db, User, Course, Subject, Chapter,Question,Option,QuizResult ,Review2, QuizRating
 import os
 from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity
 import sqlite3
@@ -13,6 +13,8 @@ import io
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from werkzeug.security import check_password_hash,generate_password_hash
+from flask_jwt_extended import create_access_token
 
 
 app = Flask(__name__)
@@ -44,6 +46,22 @@ def valid_user(username, course):
     return user is not None
 
 ##################-- Login Setup ------#########
+@app.route('/Admin_login', methods=['POST'])
+def admin():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    conn = get_db()
+    user = conn.execute('SELECT * FROM admin WHERE username = ?', (username,)).fetchone()
+    conn.close()
+
+    if user and check_password_hash(user[2], password):
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -51,11 +69,11 @@ def login():
     password = data.get('password')
 
     conn = get_db()
-    user = conn.execute('SELECT * FROM user WHERE username = ? AND password = ?', 
-                        (username, password)).fetchone()
+    user = conn.execute('SELECT * FROM user WHERE username = ? ', 
+                        (username, )).fetchone()
     conn.close()
 
-    if user:
+    if user and check_password_hash(user[3], password):
         identity_data = f"{username}:{user[7]}"  
         access_token = create_access_token(identity=identity_data)
         return jsonify({"access_token": access_token}), 200
@@ -78,6 +96,26 @@ def protected():
         "course": course
     }), 200
 
+
+@app.route('/submit_review', methods=['POST'])
+def submit_review():
+    data = request.json
+
+    username = data.get('username')
+    review = data.get('review')
+
+    # Basic validation
+    if not username or not review:
+        return jsonify({'success': False, 'error': 'Username and review are required.'}), 400
+
+    try:
+        new_review = Review2(username=username, review=review)
+        db.session.add(new_review)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Review submitted successfully.'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 ############################################################################
 
 ####--------------User dashboard------------------#############
@@ -152,11 +190,13 @@ def Register():
         return jsonify({'success': False, 'error': 'Username already exists.'}), 400
     if User.query.filter_by(email=email).first():
         return jsonify({'success': False, 'error': 'Email already exists.'}), 400
+    
+    hashed_password = generate_password_hash(password)
 
     
     new_user = User(
         username=username,
-        password=password,
+        password=hashed_password,
         email=email,
         dob=dob,
         gender=gender,
@@ -741,5 +781,39 @@ def send_reminder():
             print(f"❌ Failed to send to {email}: {e}")
 
     return jsonify({"message": "Reminders sent successfully!"}) 
+
+
+
+
+@app.route('/submit_quiz_rating', methods=['POST'])
+def submit_quiz_rating():
+    data = request.json
+    username = data.get('username')
+    quizname = data.get('quizname')
+    rating = data.get('rating')
+    timestamp = datetime.datetime.now() 
+
+    # Input validation
+    if not username or not quizname or not rating:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    if not (1 <= int(rating) <= 5):
+        return jsonify({'error': 'Rating must be between 1 and 5'}), 400
+
+    new_rating = QuizRating(
+        username=username,
+        quiz_name=quizname,
+        rating=int(rating),
+        timestamp=timestamp
+    )
+
+    db.session.add(new_rating)
+    db.session.commit()
+
+    return jsonify({'message': 'Rating submitted successfully'}), 201
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

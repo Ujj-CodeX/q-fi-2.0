@@ -3,7 +3,6 @@ from model import db, Admin, app
 
 with app.app_context():
 
-    db.create_all()
 
     
     existing_admin = Admin.query.filter_by(username='Ujju89@').first()

@@ -15,7 +15,7 @@
 
     <h2 style="font-weight: bold; margin-left: 550px; margin-top: 50px;">Quiz Management</h2>
     <h5 style="font-weight: bold; margin-top: 50px; margin-left: 350px;">After Successfully creating a new Quiz click on the button below to send Reminder</h5>
-    <a href="#" class="btn btn-primary" style="margin-left: 620px; margin-top: 50px; border-radius: 20px; background-color: red;">Send Reminder</a>
+    <a @click="sendReminder()" class="btn btn-primary" style="margin-left: 620px; margin-top: 50px; border-radius: 20px; background-color: red;">Send Reminder</a>
     <div class="card inset-card p-4 text-center" style="width: 1300px; height: auto; margin-left: 50px; margin-top: 50px; border-radius: 10px;">
     <div style="display: flex; align-items: flex-start; gap: 40px; margin-top: 0px;">
         <div class="dropdown-container">
@@ -274,17 +274,33 @@ export default{
                 alert('Failed to delete question. Please try again.');
             }
         }
+    },
+    sendReminder() {
+    fetch("http://localhost:5000/send-reminder", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message); 
+      })
+      .catch(err => {
+        console.error("❌ Error sending reminders:", err);
+      });
+  }
+}
+
+
+
+
+
     }
 
 
 
 
-
-    },
-
-
-
-}
 </script>
 <style>
 .inset-card {

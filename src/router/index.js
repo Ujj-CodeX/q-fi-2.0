@@ -7,7 +7,7 @@ import Dash4 from '../components/AdminUser.vue'
 import test from '../components/UserTest.vue'
 import SignUp from '@/components/SignUp.vue'
 import Admin_Login from '@/components/Admin_Login.vue'
-
+import QuizRating from '@/components/QuizRating.vue'
 
 const routes =[
     {
@@ -54,6 +54,13 @@ const routes =[
         path:'/admin',
         name: 'admin',
         component : Admin_Login
+    },
+
+    {
+        path:'/Quizrating',
+        name: 'QuizRating',
+        component : QuizRating
+
     },
     
 

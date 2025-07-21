@@ -68,18 +68,18 @@
     <div class="minicards" style="display: flex; align-items: flex-start; gap: 10px; margin-left: 100px; ">
 
             <div class="card" style="height: 400px; width: 350px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/2.jpg')" class="card-img service-img" style="width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
+                <img :src="require('@/assets/2.jpg')" class="card-img service-img" style="cursor: pointer;width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
                 <h7 style="margin-left: 90px; font-weight: bold; font-size: larger; margin-top: 50px;" >Track your Progress</h7>
             </div>
 
             <div class="card" style="height: 400px; width: 350px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/3.jpg')" class="card-img service-img" style="width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
+                <img :src="require('@/assets/3.jpg')" class="card-img service-img" style="cursor: pointer;width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
                 <h7 style="margin-left: 70px; margin-top: 50px; font-weight: bold; font-size: larger;" >Syllabus based Quizes</h7>
                 
             </div>
 
             <div class="card" style="height: 400px; width: 350px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/4.png')" class="card-img service-img" style="width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
+                <img :src="require('@/assets/4.png')" class="card-img service-img" style=" cursor: pointer;width: 300px; height: 250px; margin-top: 10px; margin-left: 20px; ">
                 <h7 style="margin-left: 100px; margin-top: 50px; font-weight: bold; font-size: larger;" >Multiple Courses</h7>
             </div>
         </div>

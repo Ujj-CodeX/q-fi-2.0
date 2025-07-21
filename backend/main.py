@@ -6,8 +6,14 @@ from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_
 import sqlite3
 import datetime
 from datetime import timezone
-from flask import jsonify, request
+from flask import jsonify, request , send_file
 from sqlalchemy import func, distinct
+import csv
+import io
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 
 app = Flask(__name__)
 CORS(app)
@@ -627,5 +633,113 @@ def get_quiz_attempts():
     return jsonify(response_data)
 
 
+@app.route('/api/user/<string:user_id>', methods=['GET'])
+def get_user_by_id(user_id):
+    user = User.query.filter_by(username=user_id).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'name': user.name,
+        'email': user.email,
+        'dob': user.dob.strftime('%Y-%m-%d'),
+        'gender': user.gender,
+        'course': user.course
+    })
+
+@app.route('/download-report')
+@jwt_required()
+def download_report():
+    identity = get_jwt_identity()
+    print(" Token Identity:", identity)
+
+    try:
+        username, course = identity.split(':')
+    except ValueError:
+        return jsonify({"error": "Invalid token format"}), 400
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Fetch quiz report data
+    cursor.execute("""
+        SELECT quiz_name, score, duration, submission_time
+        FROM quiz_result
+        WHERE user_id = ?
+    """, (username,))  # username is acting as user_id here
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    if not rows:
+        return jsonify({"error": "No report data found for this user."}), 404
+
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Quiz Name", "Score", "Duration", "Submission Time"]) 
+
+    for row in rows:
+        writer.writerow([row[0], row[1], row[2], row[3]])
+
+    output.seek(0)
+
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=f'report_{username}.csv'
+    )
+
+
+@app.route('/send-reminder', methods=['POST'])
+def send_reminder():
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, email FROM user")
+    users = cursor.fetchall()
+    conn.close()
+
+    
+    sender_email = "ujjawalrauniyar2004@gmail.com"
+    sender_password = "cifylmcwkflrwwes" 
+    subject = "🚨 New Quiz Available - Boost Your Grades!"
+
+    for user in users:
+        name = user[0]
+        email = user[1]
+
+        
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = email
+        message["Subject"] = subject
+
+        html_content = f"""
+        <html>
+            <body>
+                <h2>Hey {name},</h2>
+                <p>A new quiz has just been created on Q-Fi! 🎉</p>
+                <p>Attempt it now to ace your grades and stay ahead in the course.</p>
+                <p><a href="http://localhost:8080/">Click here to take the quiz!</a></p>
+                <br>
+                <p>Cheers,<br>Q-Fi Team</p>
+            </body>
+        </html>
+        """
+        message.attach(MIMEText(html_content, "html"))
+
+        
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, message.as_string())
+        except Exception as e:
+            print(f"❌ Failed to send to {email}: {e}")
+
+    return jsonify({"message": "Reminders sent successfully!"}) 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -48,6 +48,25 @@
         </div>
         <div class="card inset-card p-4 text-center" style="flex: 1; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">User Details</h6>
+          <div>
+
+        <div class="input-group">
+    <input class="form-control" v-model="userId" placeholder="Enter User_Id for Details" style="border-radius: 10px;">
+    <button @click="fetchUserDetails" class="btn btn-primary" style="margin-left: 10px; background-color: rgb(3, 3, 137); border-radius: 8px;">Search</button>
+  </div>
+
+        <div v-if="userDetails" class="mt-4 text-start" style="margin-left: 10px; text-align: left;">
+  <h6 style="font-weight: bold;">User Information:</h6>
+  <p><strong>ID:</strong> {{ userDetails.id }}</p>
+  <p><strong>Name:</strong> {{ userDetails.name }}</p>
+  <p><strong>Username:</strong> {{ userDetails.username }}</p>
+  <p><strong>Email:</strong> {{ userDetails.email }}</p>
+  <p><strong>DOB:</strong> {{ userDetails.dob }}</p>
+  <p><strong>Gender:</strong> {{ userDetails.gender }}</p>
+  <p><strong>Course:</strong> {{ userDetails.course }}</p>
+</div>
+
+        </div>
         </div>
       </div>
 
@@ -58,6 +77,20 @@
         </div>
         <div class="card inset-card p-4 text-center" style="flex: 1; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">Quiz Name and No of attempts</h6>
+          <table class="table table-bordered">
+        <thead style="background-color: #f0f0f0;">
+          <tr>
+            <th>Quiz Name</th>
+            <th>No. of Attempts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in quizAttempts" :key="item.subject_name">
+            <td>{{ item.subject }}</td>
+            <td>{{ item.attempts }}</td>
+          </tr>
+        </tbody>
+      </table>
         </div>
       </div>
     </div>
@@ -93,6 +126,23 @@ const chartOptions = {
     }
   }
 }
+
+const userId = ref('')
+const userDetails = ref(null)
+
+const fetchUserDetails = async () => {
+  if (!userId.value) return alert('Please enter a user ID')
+
+  try {
+    const response = await axios.get(`http://localhost:5000/api/user/${userId.value}`)
+    userDetails.value = response.data
+  } catch (err) {
+    console.error(err)
+    alert('User not found')
+    userDetails.value = null
+  }
+}
+
 
 // Store attempts for the table
 const quizAttempts = ref([])

@@ -20,12 +20,12 @@
 
     <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 0px; margin-left: 100px">
             <div  style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/10.png')" @click="openLeaderboard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px;">
+                <img :src="require('@/assets/10.png')" @click="openLeaderboard"  class="card-img service-img" style="cursor: pointer; width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px;">
                 <h7 style="margin-left: 20px; font-weight: bold; font-size: medium; margin-top: 20px;" >Leaderboard</h7>
             </div>
 
             <div  style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/6.png')" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
+                <img :src="require('@/assets/6.png')" @click="downloadReport()" class="card-img service-img" style="cursor: pointer;width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
                 <h7 style="margin-left: 5px; margin-top: 20px; font-weight: bold; font-size: medium;" >Download Report</h7>
                 
             </div>
@@ -34,12 +34,12 @@
         
 
             <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/7.jpg')" @click="toggleScoreCard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
+                <img :src="require('@/assets/7.jpg')" @click="toggleScoreCard" class="card-img service-img" style="cursor: pointer;width: 100px; height: 100px; margin-top: 10px; margin-left: 20px; border-radius: 8px; ">
                 <h7 style="margin-left: 10px; font-weight: bold; font-size: medium; margin-top: 20px;" >Score Overtime</h7>
             </div>
 
             <div style="height: 120px; width: 150px; margin-left: 100px; margin-top: 80px;">
-                <img :src="require('@/assets/9.png')" @click="openattemptcard" class="card-img service-img" style="width: 100px; height: 100px; margin-top: 10px; margin-left: 20px;  border-radius: 8px;">
+                <img :src="require('@/assets/9.png')" @click="openattemptcard" class="card-img service-img" style="cursor: pointer;width: 100px; height: 100px; margin-top: 10px; margin-left: 20px;  border-radius: 8px;">
                 <h7 style="margin-left: 20px; margin-top: 20px; font-weight: bold; font-size: medium;" >Past attempts</h7>
                 
             </div>
@@ -180,8 +180,9 @@
 <div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
 
 <h3 style="text-align: center;">Score Over Time</h3>
-    <table class="table table-hover table-bordered text-center">
-      <thead>
+<div style="max-height: 400px; overflow-y: auto; margin-top: 20px;">
+    <table class="table table-bordered table-striped text-center">
+      <thead class="table-dark sticky-top">
         <tr>
           <th>Quiz Name</th>
           <th>Score</th>
@@ -195,7 +196,7 @@
           <td>{{ row.timestamp }}</td>
         </tr>
       </tbody>
-    </table>
+    </table></div>
     <button @click="toggleScoreCard" class="btn btn-danger" style="width: 200px; margin-left:500px;">Close</button>
 
 
@@ -229,6 +230,24 @@
 
   </div>
   </div>
+
+
+
+   <div style="display: flex; gap: 200px; margin-top: 100px;">
+      <img :src="require('@/assets/87.png')" style="height: 300px; width: 400px; margin-top: 100px; margin-left: 300px;">
+
+
+  <div class="card" style="height: 380px; width: 500px; border-radius: 15px; background-color: white; margin-top: 50px;">
+          <div class="mb-3" style="width: 250px; margin-left: 25px; margin-top: 20px;">
+          <h5 style="color: black; margin-left: 10px;">Write a Customer Review</h5>
+      </div>
+      <form class="d-flex" style="margin-top: 40px; width: 500px;" action="/cust_ds" method="post">
+        <textarea class="form-control mr-2" style="margin-left: 50px; height: 200px; width: 300px;" name="review" placeholder="Review" aria-label="Write your review here"></textarea>
+        <button class="btn btn-outline-light" type="submit" name="submit_review" style="width: 100px; color: white; background-color: rgb(3, 3, 137);">Submit Review</button>
+      </form>
+      </div>
+  </div> 
+
 
        
 
@@ -425,9 +444,35 @@ async fetchPastAttempts() {
     console.error("Error fetching past attempts:", error);
     alert("Unable to load past attempts. Please try again.");
   }
+},
+downloadReport() {
+  fetch('http://localhost:5000/download-report', {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Failed to download');
+    return response.blob();
+  })
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+
+    
+    link.setAttribute('download', ''); 
+    link.setAttribute('target', '_blank');
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url); // Free up memory
+  })
+  .catch(err => console.error('❌ Error downloading report:', err));
 }
 
-  
 
   
 

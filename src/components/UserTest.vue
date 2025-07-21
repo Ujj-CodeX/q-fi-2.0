@@ -56,6 +56,36 @@
 
     </div>
 
+<div v-if="showRatingCard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 800px; height: 500px;margin-left: 100px;  border-radius: 10px;">
+
+<h3 style="text-align: center;">Enjoyed the quiz? Rate it!</h3>
+    
+    <div>
+          <span
+            v-for="star in 5"
+            :key="star"
+            @click="setRating(star)"
+            @mouseover="hover = star"
+            @mouseleave="hover = 0"
+            style="font-size: 2rem; cursor: pointer; color: gold; margin-left: 20px;"
+          >
+            {{ star <= (hover || rating) ? '★' : '☆' }}
+          </span>
+        </div>
+
+        <button class="btn btn-primary" @click="submitRating" style="width: 100px; margin-left: 320px; margin-top: 50px;">Submit</button>
+        <button class="btn btn-danger" @click="closeOverlay" style="margin-top: 20px; margin-left: 320px; width: 100px;">Cancel</button>
+      
+
+      <img :src="require('@/assets/88.jpg')" style="height: 200px; width: 350px; margin-left: 200px; "> 
+</div>
+
+
+
+</div>
+
 
 
 
@@ -90,6 +120,10 @@ import axios from 'axios';
         quizTitle: "",
         totalQuestions: 0,
         quizDurationMinutes: 0,
+        showRatingCard: false,
+        rating:0,
+        hover:0,
+
       };
     },
     created() {
@@ -221,7 +255,7 @@ async submitQuiz() {
 
         if (response.data.message) {
             alert(`Quiz submitted successfully! Your score is: ${response.data.score}`);
-            this.$router.push('/Leaderboard');  
+            this.showRatingCard = true
         } else {
             alert('Submission failed. Please try again.');
         }
@@ -230,7 +264,28 @@ async submitQuiz() {
         console.error("Error submitting quiz:", error);
         alert("Failed to submit quiz. Please try again.");
     }
-}
+},
+setRating(star){
+  this.rating=star
+},
+closeOverlay(){
+  this.showRatingCard = false
+  this.$router.push('/User');
+},
+submitRating(){
+  axios.post('http://localhost:5000/submit_rating', {
+        quizname: this.quizname,
+        rating: this.rating,
+      }).then(() => {
+        alert('Thanks for your feedback!')
+        this.$router.push('/User'); 
+      }).catch(err => {
+        console.error(err)
+        alert('Failed to submit rating.')
+      })
+    },
+
+
 
 
 

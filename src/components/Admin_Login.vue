@@ -51,7 +51,7 @@
 </template>
 <script>
 import axios from 'axios';
-
+import { auth } from '../store';
 export default {
   data() {
     return {
@@ -80,7 +80,9 @@ export default {
           }
         );
 
-        if (response.status === 200 ) { 
+         if (response.status === 200 && response.data.access_token) {
+          localStorage.setItem('admin_token', response.data.access_token); 
+          auth.isLoggedIn = true;
           this.$router.push('/Admin_dash');
         } else {
           this.errorMessage = 'Unexpected response from the server.';

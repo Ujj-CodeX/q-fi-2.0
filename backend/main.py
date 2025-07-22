@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request,g
 from flask_cors import CORS
 from model import db, User, Course, Subject, Chapter,Question,Option,QuizResult ,Review2, QuizRating
 import os
-from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity,decode_token,get_jwt
 import sqlite3
 import datetime
 from datetime import timezone
@@ -15,6 +15,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.security import check_password_hash,generate_password_hash
 from flask_jwt_extended import create_access_token
+from functools import wraps
 
 
 app = Flask(__name__)
@@ -45,6 +46,54 @@ def valid_user(username, course):
     conn.close()
     return user is not None
 
+
+
+
+###########################Token verification for admin -----###########
+
+def verify_token():
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            token = None
+            if 'Authorization' in request.headers:
+                token = request.headers['Authorization'].split()[1]
+            if not token:
+                return jsonify({'msg': 'Token missing'}), 401
+            try:
+                payload = decode_token(token)
+                exp = datetime.utcfromtimestamp(payload['exp'])
+                if exp < datetime.utcnow():
+                    return jsonify({'msg': 'Token expired'}), 401
+                request.user = payload['sub']
+            except Exception as e:
+                return jsonify({'msg': 'Invalid token'}), 401
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##################-- Login Setup ------#########
 @app.route('/Admin_login', methods=['POST'])
 def admin():
@@ -57,7 +106,9 @@ def admin():
     conn.close()
 
     if user and check_password_hash(user[2], password):
-        return jsonify({"message": "Login successful"}), 200
+        identity_data = f"{username}"
+        access_token = create_access_token(identity=identity_data)
+        return jsonify({"access_token": access_token}), 200
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
@@ -225,6 +276,8 @@ def get_courses():
     return jsonify([{'id': course.id, 'name': course.name} for course in courses])
 
 @app.route('/add-course', methods=['POST'])
+@jwt_required()
+
 def add_course():
     data = request.json
     new_course = Course(name=data.get('name'))
@@ -235,6 +288,8 @@ def add_course():
     return jsonify({'success': True, 'message': 'Course added successfully'})
 
 @app.route('/delete-course/<int:course_id>', methods=['DELETE'])
+@jwt_required()
+
 def delete_course(course_id):
     course = Course.query.get(course_id)
     if course:
@@ -255,6 +310,7 @@ def get_subjects(course_id):
 
 
 @app.route('/add-subject', methods=['POST'])
+@jwt_required()
 def add_subject():
     data = request.json
     new_subject = Subject(name=data.get('name'), course_id=data.get('course_id'))
@@ -262,9 +318,12 @@ def add_subject():
     db.session.add(new_subject)
     db.session.commit()
 
-    return jsonify({'success': True, 'message': 'Subject added successfully'})
+    return jsonify({'success': True, 'message': 'Subject added successfully'}),201
+
 
 @app.route('/delete-subject/<int:subject_id>', methods=['DELETE'])
+@jwt_required()
+
 def delete_subject(subject_id):
     subject = Subject.query.get(subject_id)
     if subject:
@@ -276,6 +335,7 @@ def delete_subject(subject_id):
 # -------------------- CHAPTER FUNCTIONALITY -------------------- #
 
 @app.route('/chapters/<int:subject_id>/<int:course_id>', methods=['GET'])
+
 def get_chapters(subject_id, course_id):
     subject = Subject.query.filter_by(id=subject_id, course_id=course_id).first()
     if not subject:
@@ -288,6 +348,7 @@ def get_chapters(subject_id, course_id):
     ])
 
 @app.route('/add-chapter', methods=['POST'])
+@jwt_required()
 def add_chapter():
     data = request.json
     new_chapter = Chapter(name=data.get('name'), subject_id=data.get('subject_id'))
@@ -298,6 +359,7 @@ def add_chapter():
     return jsonify({'success': True, 'message': 'Chapter added successfully'})
 
 @app.route('/delete-chapter/<int:chapter_id>', methods=['DELETE'])
+@jwt_required()
 def delete_chapter(chapter_id):
     chapter = Chapter.query.get(chapter_id)
     if chapter:
@@ -308,6 +370,7 @@ def delete_chapter(chapter_id):
 
 
 @app.route('/edit-course/<int:course_id>', methods=['PUT'])
+@jwt_required()
 def edit_course(course_id):
     data = request.json
     conn = get_db()
@@ -318,6 +381,7 @@ def edit_course(course_id):
 
 # Edit Subject Route
 @app.route('/edit-subject/<int:subject_id>', methods=['PUT'])
+@jwt_required()
 def edit_subject(subject_id):
     data = request.json
     conn = get_db()
@@ -328,6 +392,7 @@ def edit_subject(subject_id):
 
 # Edit Chapter Route
 @app.route('/edit-chapter/<int:chapter_id>', methods=['PUT'])
+@jwt_required()
 def edit_chapter(chapter_id):
     data = request.json
     conn = get_db()
@@ -341,6 +406,7 @@ def edit_chapter(chapter_id):
 #####--------Quiz_Management --------------------#################
 
 @app.route('/api/get_questions/<int:chapter_id>', methods=['GET'])
+@jwt_required()
 def get_questions(chapter_id):
     print(f"Received request for chapter_id: {chapter_id}")
     try:
@@ -386,7 +452,9 @@ def get_questions(chapter_id):
 
 
 @app.route('/api/edit_question/<int:question_id>', methods=['PUT'])
+@jwt_required()
 def edit_question(question_id):
+
     data = request.json
 
     question = Question.query.get(question_id)
@@ -405,6 +473,7 @@ def edit_question(question_id):
 
 
 @app.route('/api/delete_question/<int:question_id>', methods=['DELETE'])
+@jwt_required()
 def delete_question(question_id):
     question = Question.query.get(question_id)
     if not question:
@@ -417,6 +486,7 @@ def delete_question(question_id):
 
 
 @app.route('/api/questions', methods=['POST'])
+@jwt_required()
 def add_question():
     data = request.json
 
@@ -653,6 +723,7 @@ def get_past_attempts():
 
     return jsonify({"attempts": results}), 200
 @app.route('/api/quiz-attempts', methods=['GET'])
+@jwt_required()
 def get_quiz_attempts():
    
     results = db.session.query(
@@ -674,6 +745,7 @@ def get_quiz_attempts():
 
 
 @app.route('/api/user/<string:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_by_id(user_id):
     user = User.query.filter_by(username=user_id).first()
     if not user:
@@ -735,6 +807,7 @@ def download_report():
 
 
 @app.route('/send-reminder', methods=['POST'])
+@jwt_required()
 def send_reminder():
     
     conn = get_db()
@@ -786,6 +859,7 @@ def send_reminder():
 
 
 @app.route('/submit_quiz_rating', methods=['POST'])
+
 def submit_quiz_rating():
     data = request.json
     username = data.get('username')
@@ -813,6 +887,40 @@ def submit_quiz_rating():
     return jsonify({'message': 'Rating submitted successfully'}), 201
 
 
+@app.route('/api/quiz-average-ratings', methods=['GET'])
+@jwt_required()
+def get_quiz_average_ratings():
+    results = (
+        db.session.query(QuizRating.quiz_name, func.avg(QuizRating.rating))
+        .group_by(QuizRating.quiz_name)
+        .all()
+    )
+
+    response = [
+        {"quiz_name": quiz, "average_rating": round(avg_rating, 2)}
+        for quiz, avg_rating in results
+    ]
+    return jsonify(response)
+
+@app.route('/api/user-reviews', methods=['GET'])
+@jwt_required()
+def get_user_reviews():
+    reviews = Review2.query.order_by(Review2.id.desc()).all()
+    response = [
+        {"username": r.username, "review": r.review}
+        for r in reviews
+    ]
+    return jsonify(response)
+
+
+
+
+@app.after_request
+def disable_caching(response):
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 if __name__ == '__main__':

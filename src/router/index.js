@@ -8,6 +8,7 @@ import test from '../components/UserTest.vue'
 import SignUp from '@/components/SignUp.vue'
 import Admin_Login from '@/components/Admin_Login.vue'
 import QuizRating from '@/components/QuizRating.vue'
+import About from '@/components/About.vue'
 
 const routes =[
     {
@@ -60,6 +61,12 @@ const routes =[
         path:'/Quizrating',
         name: 'QuizRating',
         component : QuizRating
+
+    },
+    {
+        path:'/About',
+        name: 'About',
+        component : About
 
     },
     

@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark mt-4" style="background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin: 20px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
         <div style="display: flex; align-items: flex-start; gap: 400px;">
         <div style=" display: flex; align-items: flex-start; margin-left: 200px; gap: 10px;"> 
-        <img src="{{ url_for('static', filename='10.png') }}" alt="Logo" width="40" height="40"  class="d-inline-block align-text-top" style="margin-left: 0px;">
+        <img :src="require('@/assets/91.png')" alt="Logo" width="40" height="40"  class="d-inline-block align-text-top" style="margin-left: 0px;">
         
         <span style="font-size: 28px; font-weight: bold; color: white;">Q_Fi</span>
         </div>
@@ -23,6 +23,9 @@
                 <li class="nav-item">
                     <a class="nav-link text-light" href="/admin">Admin</a>
                 </li>
+                <li class="nav-item">
+                <a  class="nav-link text-light" v-if="auth.isLoggedIn" @click="logout" style="cursor: pointer;">User Logout</a>
+                </li>
             </ul>
             
         </div>
@@ -30,8 +33,15 @@
     </nav>
 
 </template>
-<script>
-export default {
-    name: "Navbar",
-};
+<script setup>
+import { auth } from '../store'; // Adjust the path if needed
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function logout() {
+  localStorage.removeItem('token');
+  auth.isLoggedIn = false;
+  router.push('/');
+}
 </script>

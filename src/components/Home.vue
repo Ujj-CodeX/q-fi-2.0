@@ -3,7 +3,10 @@
   
 
     <div class="heading" style="margin-left: 200px; margin-top:110px; color: black;">
+      <div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 0px;">
+      <img :src="require('@/assets/90.png')" alt="Logo" width="40" height="40"  class="d-inline-block align-text-top" style="margin-left: 0px;">
       <h1 style="font-weight: bold;">Q-Fi</h1>
+    </div>
       <h5 style="font-weight: bold;">Challenge yourself and ace your grade</h5>
     </div>
 
@@ -88,7 +91,7 @@
 
 <script>
 import axios from 'axios';
-
+import { auth } from '../store';
 export default {
   data() {
     return {
@@ -119,6 +122,7 @@ export default {
 
         if (response.status === 200 && response.data.access_token) {
           localStorage.setItem('token', response.data.access_token); 
+          auth.isLoggedIn = true;
           this.$router.push('/User');  
         } else {
           this.errorMessage = 'Unexpected response from the server.';

@@ -3,10 +3,13 @@
    
     <div class="sidebar-card">
       <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
-      <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
-       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
-       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
- 
+      <a class="nav-link" style="color:whitesmoke; cursor:pointer; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
+       <a class="nav-link" style="color:whitesmoke;cursor:pointer; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
+       <a class="nav-link" style="color:whitesmoke; cursor:pointer;display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
+       <a class="nav-link" 
+   style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
+   v-if="auth.isLoggedIn" @click="logout">
+   Logout</a>
     </div>
 
 
@@ -136,8 +139,23 @@
 </div>
 </template>
 <script>
+import { auth } from '../store';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+
 export default{
+  setup(){
+      const router = useRouter()
+      function logout(){
+  localStorage.removeItem('admin_token');
+  auth.isLoggedIn = false;
+  router.push('/admin');
+}
+
+      return { logout, auth };
+
+    },
   data (){
     return {
       courses: [],
@@ -197,22 +215,29 @@ export default{
       },
       async fetchQuestions() {
         try {
-            const response = await axios.get(`http://localhost:5000/api/get_questions/${this.selectedChapter}`);
+          const token = localStorage.getItem('admin_token');
+            const response = await axios.get(`http://localhost:5000/api/get_questions/${this.selectedChapter}`,{headers: {
+        'Authorization': `Bearer ${token}` 
+      }} );
             console.log('Fetched Questions:', response.data); 
             this.questions = Array.isArray(response.data) ? response.data : [];
         } catch (error) {
             console.error('Error fetching questions:', error);
-            alert('Failed to fetch questions. Please try again.');
+            alert('Failed to fetch questions. Please try again. Might Need Authorization');
         }
     },
       async submitQuestion() {
         try {
+          const token = localStorage.getItem('admin_token');
             await axios.post('http://localhost:5000/api/questions', {
                 question: this.newQuestion,
                 options: this.newOptions,
                 correctAnswer: this.correctAnswer,
                 chapter: this.selectedChapter
-            });
+            },
+          {headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
             alert('Question added successfully!');
             this.newQuestion = '';
             this.newOptions = ['', '', '', ''];
@@ -242,11 +267,16 @@ export default{
 
     async saveEditedQuestion() {
         try {
+          const token = localStorage.getItem('admin_token');
             await axios.put(`http://localhost:5000/api/edit_question/${this.editingQuestionId}`, {
+              
                 question: this.newQuestion,
                 options: this.newOptions,
                 correctAnswer: this.correctAnswer
-            });
+            }, {headers: {
+        'Authorization': `Bearer ${token}` 
+      }}
+          );
             alert('Question updated successfully!');
             this.fetchQuestions();
             this.resetForm();
@@ -266,7 +296,10 @@ export default{
     async deleteQuestion(questionId) {
         if (confirm('Are you sure you want to delete this question?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/delete_question/${questionId}`);
+              const token = localStorage.getItem('admin_token');
+                await axios.delete(`http://localhost:5000/api/delete_question/${questionId}`,{headers: {
+           'Authorization': `Bearer ${token}` 
+      }});
                 alert('Question deleted successfully!');
                 this.fetchQuestions();
             } catch (error) {
@@ -276,10 +309,11 @@ export default{
         }
     },
     sendReminder() {
+      const token = localStorage.getItem('admin_token');
     fetch("http://localhost:5000/send-reminder", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${localStorage.getItem('token')}`,
+        "Authorization": `Bearer ${(token)}`,
       }
     })
       .then(res => res.json())

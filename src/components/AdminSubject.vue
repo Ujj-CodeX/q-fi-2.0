@@ -3,10 +3,13 @@
     <div class="sidebar-card">
       <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
       
-       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
-       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
-       <a class="nav-link" style="color:whitesmoke; display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
- 
+       <a class="nav-link" style="color:whitesmoke; cursor:pointer; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
+       <a class="nav-link" style="color:whitesmoke;cursor:pointer; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
+       <a class="nav-link" style="color:whitesmoke; cursor:pointer;display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
+       <a class="nav-link" 
+   style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
+   v-if="auth.isLoggedIn" @click="logout">
+   Logout</a>
     </div>
 
     <div style="flex: 1; padding: 20px;">
@@ -136,9 +139,22 @@
 </template>
 
 <script>
+import { auth } from '../store';
 import axios from 'axios';
-  
+import { useRouter } from 'vue-router';
+
   export default {
+    setup(){
+      const router = useRouter()
+      function logout(){
+  localStorage.removeItem('admin_token');
+  auth.isLoggedIn = false;
+  router.push('/admin');
+}
+
+      return { logout, auth };
+
+    },
     data() {
       return {
         courses: [],
@@ -155,7 +171,8 @@ import axios from 'axios';
   
         showAddCourseForm: false,
         showAddSubjectForm: false,
-        showAddChapterForm: false
+        showAddChapterForm: false,
+        
       };
     },
     
@@ -189,7 +206,11 @@ import axios from 'axios';
   
       async addCourse() {
         try {
-          await axios.post('http://localhost:5000/add-course', { name: this.newCourseName });
+          const token = localStorage.getItem('admin_token');
+
+          await axios.post('http://localhost:5000/add-course', { name: this.newCourseName },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
           this.fetchCourses();
           this.showAddCourseForm = false;
           this.newCourseName = '';
@@ -200,7 +221,10 @@ import axios from 'axios';
   
       async deleteCourse(courseId) {
         try {
-          await axios.delete(`http://localhost:5000/delete-course/${courseId}`);
+          const token = localStorage.getItem('admin_token');
+          await axios.delete(`http://localhost:5000/delete-course/${courseId}`,{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
           this.fetchCourses();
         } catch (error) {
           console.error('Error deleting course:', error);
@@ -208,7 +232,10 @@ import axios from 'axios';
       },
       async deleteSubject(subjectId) {
     try {
-        await axios.delete(`http://localhost:5000/delete-subject/${subjectId}`);
+      const token = localStorage.getItem('admin_token');
+        await axios.delete(`http://localhost:5000/delete-subject/${subjectId}`,{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
         this.subjects = this.subjects.filter(subject => subject.id !== subjectId);
     } catch (error) {
         console.error('Error deleting subject:', error);
@@ -217,7 +244,10 @@ import axios from 'axios';
 ,
 async deleteChapter(chapterId) {
     try {
-        await axios.delete(`http://localhost:5000/delete-chapter/${chapterId}`);
+      const token = localStorage.getItem('admin_token');
+        await axios.delete(`http://localhost:5000/delete-chapter/${chapterId}`,{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
         this.chapters = this.chapters.filter(chapter => chapter.id !== chapterId);
     } catch (error) {
         console.error('Error deleting chapter:', error);
@@ -226,10 +256,13 @@ async deleteChapter(chapterId) {
   
       async addSubject() {
         try {
+          const token = localStorage.getItem('admin_token');
           await axios.post('http://localhost:5000/add-subject', {
             name: this.newSubjectName,
             course_id: this.selectedCourse
-          });
+          },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
           this.showAddSubjectForm = false;
           this.fetchSubjects();
           this.newSubjectName = '';
@@ -249,10 +282,13 @@ async deleteChapter(chapterId) {
   
       async addChapter() {
         try {
+          const token = localStorage.getItem('admin_token');
           await axios.post('http://localhost:5000/add-chapter', {
             name: this.newChapterName,
             subject_id: this.selectedSubject
-          });
+          },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
           this.showAddChapterForm = false;
           this.fetchChapters();
           this.newChapterName = '';
@@ -263,6 +299,7 @@ async deleteChapter(chapterId) {
   
       async fetchChapters() {
         try {
+          
           const response = await axios.get(`http://localhost:5000/chapters/${this.selectedSubject}/${this.selectedCourse}`);
           this.chapters = response.data;
         } catch (error) {
@@ -270,24 +307,14 @@ async deleteChapter(chapterId) {
         }
       },
 
-      async sendReminders() {
-      try {
-        const response = await fetch('http://localhost:5000/send-reminders', {
-          method: 'POST',
-        });
-
-        const data = await response.json();
-        console.log(data.message);
-        alert('Reminders sent!');
-      } catch (error) {
-        console.error('Error sending reminders:', error);
-      }
-      },
       async editCourse(course) {
     const updatedName = prompt('Enter new course name:', course.name);
     if (updatedName && updatedName.trim()) {
       try {
-        await axios.put(`http://localhost:5000/edit-course/${course.id}`, { name: updatedName.trim() });
+        const token = localStorage.getItem('admin_token');
+        await axios.put(`http://localhost:5000/edit-course/${course.id}`, { name: updatedName.trim() },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
         this.fetchCourses();
       } catch (error) {
         console.error('Error editing course:', error);
@@ -299,7 +326,10 @@ async deleteChapter(chapterId) {
     const updatedName = prompt('Enter new subject name:', subject.name);
     if (updatedName && updatedName.trim()) {
       try {
-        await axios.put(`http://localhost:5000/edit-subject/${subject.id}`, { name: updatedName.trim() });
+        const token = localStorage.getItem('admin_token');
+        await axios.put(`http://localhost:5000/edit-subject/${subject.id}`, { name: updatedName.trim() },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
         this.fetchSubjects();
       } catch (error) {
         console.error('Error editing subject:', error);
@@ -311,17 +341,23 @@ async deleteChapter(chapterId) {
     const updatedName = prompt('Enter new chapter name:', chapter.name);
     if (updatedName && updatedName.trim()) {
       try {
-        await axios.put(`http://localhost:5000/edit-chapter/${chapter.id}`, { name: updatedName.trim() });
+        const token = localStorage.getItem('admin_token');
+        await axios.put(`http://localhost:5000/edit-chapter/${chapter.id}`, { name: updatedName.trim() },{headers: {
+        'Authorization': `Bearer ${token}` 
+      }});
         this.fetchChapters();
       } catch (error) {
         console.error('Error editing chapter:', error);
       }
     }
-  }
+  },
+  
+  
 
 
     
     }
+    
   };
 </script>
 <style>

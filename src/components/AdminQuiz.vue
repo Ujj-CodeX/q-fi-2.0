@@ -8,7 +8,7 @@
        <a class="nav-link" style="color:whitesmoke; cursor:pointer;display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
        <a class="nav-link" 
    style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
-   v-if="auth.isLoggedIn" @click="logout">
+   @click="logout">
    Logout</a>
     </div>
 

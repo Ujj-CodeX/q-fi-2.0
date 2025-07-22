@@ -1,20 +1,13 @@
 <template>
 
     <div class="heading" style="margin-left: 200px; margin-top:100px; color: black; ">
-      
-        <h1 style="font-weight: bold;">Q-Fi</h1>
+      <div style="display: flex; align-items: flex-start; gap: 20px; margin-top: 0px;">
+      <img :src="require('@/assets/90.png')" alt="Logo" width="40" height="40"  class="d-inline-block align-text-top" style="margin-left: 0px;">
+        <h1 style="font-weight: bold;">Q-Fi</h1></div>
       <h5 style="font-weight: bold;">Looking for something specific ?</h5>
     
 
-     <div>
-             <h3 style=" font-weight: bold; margin-top: 50px;"> Search more Courses</h3>  
-
-        <form class="d-flex" role="search" style="margin-top: 40px; width: 450px; " action="/Show_table" method="post" >
-          <input class="form-control mr-2" name="service_name" type="search" placeholder="Enter the Course" aria-label="Search Services by SERVICE ID" style="border-radius: 10px;">
-          <button class="btn btn-primary" style="background-color: rgb(3, 3, 137); color: white; border-radius: 8px;" type="submit">Search</button>
-        </form>
-
-        </div>
+     
 </div>
     <div style="display: flex; align-items: flex-start; gap: 30px; margin-top: 0px; margin-left: 10px">
 
@@ -135,6 +128,7 @@
 <div class="card inset-card p-4 text-center" style="position: absolute;  width: 1200px; height: 600px;margin-left: 100px;  border-radius: 10px;">
 
 <h3 class="text-center mb-4">🏆 Quiz Leaderboard</h3>
+<button class="btn btn-danger mb-3" @click="showleaderboard = false" style="width: 200px; margin-left:500px;">Close</button>
 
       
       <div class="alert alert-info text-center mb-4" v-if="loggedInUser">
@@ -263,6 +257,9 @@
     </div>
   </div>
 
+  
+
+
 
        
 
@@ -294,7 +291,8 @@ export default {
      showScoreCard: false,
     scoreHistory: [],
     showpast: false,
-    pastAttempts: []
+    pastAttempts: [],
+    
  
     };
   },
@@ -522,7 +520,8 @@ async submitReview(e) {
         this.message = 'Failed to submit review. Server error.';
         this.messageColor = 'red';
       }
-    }
+    },
+    
 
 
   

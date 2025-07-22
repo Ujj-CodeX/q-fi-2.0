@@ -131,6 +131,39 @@ def login():
     else:
         return jsonify({"error": "Invalid credentials"}), 401
 
+@app.route('/change-password', methods=['POST'])
+def change_password():
+    data = request.json
+    username = data.get('username')
+    new_password = data.get('new_password')
+
+    if not username or not new_password:
+        return jsonify({'error': 'Username and password are required.'})
+
+    try:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Check if the username exists
+        cursor.execute('SELECT * FROM user WHERE username = ?', (username,))
+        user = cursor.fetchone()
+
+        if user:
+            # Hash the new password
+            hashed_password = generate_password_hash(new_password)
+
+            # Update the password
+            cursor.execute('UPDATE user SET password = ? WHERE username = ?', (hashed_password, username))
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True, 'message': 'Password updated successfully.'})
+        else:
+            conn.close()
+            return jsonify({'error': 'Username not found.'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 @app.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():

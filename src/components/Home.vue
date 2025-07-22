@@ -21,8 +21,10 @@
             <input  type="password" class="form-control" id="password" v-model="password" placeholder="Password">
 
             <button type="submit" class="btn btn-primary" style="margin-top: 20px; width: 290px; background-color: rgb(3, 3, 137); color: white;">Sign In</button>
-            <a href="/forgot_user" style=" font-weight: bold; display: block; text-decoration: underline; color:black; margin-top: 15px;">Forgot Password?</a>
-
+            <a @click.prevent="forget"
+   style="cursor: pointer; font-weight: bold; display: block; text-decoration: underline; color: black; margin-top: 15px;">
+   Forgot Password?
+</a>
             <div v-if="errorMessage" class="alert alert-danger mt-3">
               {{ errorMessage }}
             </div>
@@ -87,6 +89,36 @@
             </div>
         </div>
   </div>
+
+
+  <div v-if="showforgetcard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 500px; height: 600px;margin-left: 100px;  border-radius: 10px;">
+    <div >
+  <h2 class="card-heading">Change Password</h2>
+  
+        <form @submit.prevent="handleChangePassword">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input v-model="username" type="text" class="form-control" id="username" required>
+          </div>
+  
+          <div class="mb-3">
+            <label for="new_password" class="form-label">New Password</label>
+            <input v-model="new_password" type="password" class="form-control" id="new_password" required>
+          </div>
+  
+          <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirm New Password</label>
+            <input v-model="confirm_password" type="password" class="form-control" id="confirm_password" required>
+          </div>
+  
+          <button type="submit" class="btn btn" style="background-color: rgb(3, 3, 137); color: white;">Change Password</button>
+          
+        </form></div>
+        <button class="btn btn-danger mb-3" @click="showforgetcard = false" style="width: 100px; margin-left:180px; margin-top: 20px;">Cancel</button>
+</div>
+</div>
 </template>
 
 <script>
@@ -98,7 +130,10 @@ export default {
       username: '',
       password: '',
       errorMessage: '',
-      loading: false
+      loading: false,
+      showforgetcard:false,
+      new_password: '',
+      confirm_password: ''
     };
   },
   methods: {
@@ -143,6 +178,37 @@ export default {
   handleBookNow() {
   alert(`Thannks for your Interest Login with your Student ID to start acing your Grades.`)
 }
+,
+async handleChangePassword() {
+        if (this.new_password !== this.confirm_password) {
+          alert('Passwords do not match!');
+          return;
+        }
+  
+        try {
+          const payload = {
+            username: this.username,
+            new_password: this.new_password
+          };
+  
+          const response = await axios.post('http://localhost:5000/change-password', payload);
+  
+          if (response.data.success) {
+            alert('Password changed successfully!');
+            this.showforgetcard=false;
+          } else {
+            alert(response.data.error || 'Failed to change password.');
+          }
+        } catch (error) {
+          console.error('Change password error:', error);
+          alert('Error changing password. Please try again.');
+        }
+      },
+      forget() {
+    this.showforgetcard = !this.showforgetcard;
+    
+  }
+
 },
 
 }

@@ -10,6 +10,7 @@
    style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
     @click="logout">
    Logout</a>
+   <button class="btn btn-primary" style="background-color: white; color: black; margin-top: 20px;  border-radius: 10px;" @click="sendmonthlyreminder">Send Monthly Reminder</button>
     </div>
 
     <div style="flex: 1; padding: 20px;">
@@ -351,6 +352,22 @@ async deleteChapter(chapterId) {
       }
     }
   },
+  sendmonthlyreminder() {
+      const token = localStorage.getItem('admin_token');
+    fetch("http://localhost:5000/send-monthly-reminder", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${(token)}`,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message); 
+      })
+      .catch(err => {
+        console.error("❌ Error sending reminders:", err);
+      });
+    }
   
   
 

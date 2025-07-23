@@ -5,7 +5,7 @@ import os
 from flask_jwt_extended import JWTManager,create_access_token,jwt_required, get_jwt_identity,decode_token,get_jwt
 import sqlite3
 import datetime
-from datetime import timezone
+from datetime import timezone,timedelta
 from flask import jsonify, request , send_file
 from sqlalchemy import func, distinct
 import csv
@@ -16,6 +16,8 @@ from email.mime.multipart import MIMEMultipart
 from werkzeug.security import check_password_hash,generate_password_hash
 from flask_jwt_extended import create_access_token
 from functools import wraps
+from zoneinfo import ZoneInfo
+
 
 
 app = Flask(__name__)
@@ -45,54 +47,6 @@ def valid_user(username, course):
                         (username, course)).fetchone()
     conn.close()
     return user is not None
-
-
-
-
-###########################Token verification for admin -----###########
-
-def verify_token():
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            token = None
-            if 'Authorization' in request.headers:
-                token = request.headers['Authorization'].split()[1]
-            if not token:
-                return jsonify({'msg': 'Token missing'}), 401
-            try:
-                payload = decode_token(token)
-                exp = datetime.utcfromtimestamp(payload['exp'])
-                if exp < datetime.utcnow():
-                    return jsonify({'msg': 'Token expired'}), 401
-                request.user = payload['sub']
-            except Exception as e:
-                return jsonify({'msg': 'Invalid token'}), 401
-            return fn(*args, **kwargs)
-        return wrapper
-    return decorator
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ##################-- Login Setup ------#########
 @app.route('/Admin_login', methods=['POST'])
@@ -613,7 +567,7 @@ def submit_quiz():
     score = sum(5 for q_id, selected_option in user_answers.items()
                 if correct_answer_dict.get(q_id) == selected_option)
 
-    
+    ist_time = datetime.datetime.now(ZoneInfo("Asia/Kolkata"))
     conn.execute('''
         INSERT INTO quiz_result (user_id, quiz_name, duration, questions_count, score, submission_time)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -623,7 +577,7 @@ def submit_quiz():
         data.get('duration', 0),
         len(correct_answers),
         score,
-        datetime.datetime.now(timezone.utc)
+        ist_time
     ))
 
     conn.commit()
@@ -761,7 +715,7 @@ def get_quiz_attempts():
    
     results = db.session.query(
         QuizResult.quiz_name,
-        func.count(func.distinct(QuizResult.user_id)).label('attempts')
+        func.count((QuizResult.user_id)).label('attempts')
     ).group_by(QuizResult.quiz_name).all()
 
     
@@ -955,6 +909,82 @@ def disable_caching(response):
     response.headers["Expires"] = "0"
     return response
 
+
+from io import StringIO
+from email.message import EmailMessage
+
+
+
+##################-----Sending Monthly Report--------###############
+@app.route('/send-monthly-reminder', methods=['POST'])
+@jwt_required()
+def send_monthly_reports():
+    try:
+        ist_time = datetime.datetime.now(ZoneInfo("Asia/Kolkata"))
+        one_month_ago = ist_time - timedelta(days=30)
+        users = User.query.all()
+
+        print(f" Found {len(users)} users in DB")
+
+        for user in users:
+            results = (
+                QuizResult.query
+                .filter(
+                    QuizResult.user_id == user.username,
+                    QuizResult.submission_time >= one_month_ago
+                )
+                .all()
+            )
+
+            print(f"📩 Checking user: {user.username} | Results: {len(results)}")
+
+            if results:
+                csv_data = generate_csv_for_user(user, results)
+                send_email(user.email, csv_data)
+                print(f"Email sent to {user.email}")
+            else:
+                print("⏩ No recent results. Skipping...")
+
+        return jsonify({"message": "Monthly reports sent successfully"}), 200
+
+    except Exception as e:
+        print(f" Error occurred: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+def generate_csv_for_user(user, results):
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['QuizName', 'Duration', 'No. of Questions', 'Score', 'Submission'])
+
+    for result in results:
+        writer.writerow([
+            result.quiz_name,
+            result.duration,
+            result.questions_count,
+            result.score,
+            result.submission_time.strftime("%Y-%m-%d %H:%M:%S")
+        ])
+    return output.getvalue()
+
+
+def send_email(email_to, csv_content):
+    sender_email = 'ujjawalrauniyar2004@gmail.com'
+    sender_password = 'cifylmcwkflrwwes'  # ⚠️ Replace with secure env variable in production
+
+    msg = EmailMessage()
+    msg['Subject'] = "Your Monthly Quiz Performance Report"
+    msg['From'] = sender_email
+    msg['To'] = email_to
+    msg.set_content(" Hey there , Hope you had aced your marks last month. Please find attached your quiz performance report.")
+    msg.add_attachment(csv_content.encode('utf-8'), maintype='text', subtype='csv', filename='report.csv')
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(sender_email, sender_password)
+        smtp.send_message(msg)
+
+
+###################################################################
 
 if __name__ == '__main__':
     app.run(debug=True)

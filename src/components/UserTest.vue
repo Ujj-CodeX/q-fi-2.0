@@ -89,6 +89,17 @@
 
 </div>
 
+<div v-if="showtimesupCard" class="overlay">
+
+<div class="card inset-card p-4 text-center" style="position: absolute;  width: 800px; height: 500px;margin-left: 100px;  border-radius: 10px;">
+
+<h3 style="text-align: center; color: red;">Times Up !!! Buddy</h3>
+
+
+<button class="btn btn-danger" @click="closeOverlay" style="margin-top: 20px; margin-left: 320px; width: 100px;">Back to Home</button>
+</div>
+</div>
+
 
 
 
@@ -124,6 +135,8 @@ import axios from 'axios';
         totalQuestions: 0,
         quizDurationMinutes: 0,
         showRatingCard: false,
+        showtimesupCard:false,
+        hasSubmitted:false,
         rating:0,
         hover:0,
         quizname:"",
@@ -210,9 +223,12 @@ import axios from 'axios';
           this.remainingTime--;
         } else {
           clearInterval(this.timer);
-          this.submitQuiz();
-          this.$router.push('/times-up');
 
+           if (!this.hasSubmitted) {
+            this.hasSubmitted = true; // prevent further calls
+            this.showtimesupCard = true;
+            this.submitQuiz();
+}
         }
       }, 1000); 
     },
@@ -230,6 +246,8 @@ import axios from 'axios';
 
 },
 async submitQuiz() {
+
+
     const userAnswersObject = {};
 
     this.questionsCopy.forEach((question) => {
@@ -275,6 +293,10 @@ setRating(star){
 },
 closeOverlay(){
   this.showRatingCard = false
+  this.$router.push('/User');
+},
+closetimesup(){
+  this.showtimesupCard = false
   this.$router.push('/User');
 },
 async submitRating(){

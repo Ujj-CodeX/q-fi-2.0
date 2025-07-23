@@ -90,6 +90,7 @@
           
           <select v-model.number="quizSettings.duration" class="form-control" style="border-radius: 10px; background-color: rgb(3, 3, 137); color: white;">
   <option disabled value="">Select Duration</option>
+  <option :value="1">1 Minutes</option>
   <option :value="5">5 Minutes</option>
   <option :value="10">10 Minutes</option>
   <option :value="15">15 Minutes</option>

@@ -10,6 +10,7 @@
    style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
     @click="logout">
    Logout</a>
+   <button class="btn btn-primary" style="background-color: white; color: black; margin-top: 20px;  border-radius: 10px;" @click="sendmonthlyreminder">Send Monthly Reminder</button>
     </div>
 
     
@@ -28,7 +29,7 @@
         <div class="card inset-card p-4 text-center" style="flex: 1; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">Quiz Name and No of attempts</h6>
           <table class="table table-bordered">
-        <thead style="background-color: rgb(3, 3, 137)">
+        <thead style="background-color: rgb(3, 3, 137)" class="table-dark sticky-top">
           <tr style="color: white;">
             <th>Quiz Name</th>
             <th>No. of Attempts</th>
@@ -50,7 +51,7 @@
           <h6 style="font-weight: bold; margin-top: 10px;">User Review and Rating</h6>
           <div style="max-height: 420px; overflow-y: auto;">
     <table class="table table-striped table-hover">
-      <thead style="position: sticky; top: 0; background-color:rgb(3, 3, 137) ">
+      <thead style="position: sticky; top: 0; background-color:rgb(3, 3, 137)  " class="table-dark sticky-top">
         <tr style="color: white;">
           <th>Username</th>
           <th>Review</th>
@@ -101,7 +102,7 @@
         <div class="card inset-card p-4 text-center" style="flex: 1; height: 500px; border-radius: 10px;">
           <h6 style="font-weight: bold; margin-top: 10px;">Quiz Name and No of attempts</h6>
           <table class="table table-bordered">
-        <thead style="background-color: rgb(3, 3, 137)">
+        <thead style="background-color: rgb(3, 3, 137)" class="table-dark sticky-top">
           <tr style="color: white;">
             <th>Quiz Name</th>
             <th>No. of Attempts</th>
@@ -269,6 +270,24 @@ function logout() {
   auth.isLoggedIn = false
   router.push('/admin')
 }
+
+function sendmonthlyreminder() {
+      const token = localStorage.getItem('admin_token');
+    fetch("http://localhost:5000/send-monthly-reminder", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${(token)}`,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message); 
+      })
+      .catch(err => {
+        console.error("❌ Error sending reminders:", err);
+      });
+    }
+  
 </script>
 
 

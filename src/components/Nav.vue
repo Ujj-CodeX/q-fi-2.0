@@ -11,7 +11,7 @@
         <div class="container justify-content-center">
             <ul class="navbar-nav d-flex flex-row gap-3">
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="/About">About Us</a>
+                    <router-link class="nav-link text-light" href="/About">About Us</router-link>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-light" href="/">Home</a>

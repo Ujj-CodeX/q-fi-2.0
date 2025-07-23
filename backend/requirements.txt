@@ -1,3 +1,10 @@
-flask
-flask-cors
+Flask
+Flask-Cors
+Flask-JWT-Extended
+SQLAlchemy
 gunicorn
+sqlite3-binary
+Werkzeug
+email-validator
+python-dotenv
+zoneinfo; python_version >= "3.9"

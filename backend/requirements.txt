@@ -6,4 +6,3 @@ gunicorn
 Werkzeug
 email-validator
 Flask-SQLAlchemy
-reuriements

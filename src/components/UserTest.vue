@@ -181,7 +181,7 @@ import axios from 'axios';
   this.isLoading = true;
 
   try {
-    const response = await axios.get(`http://localhost:5000/get-questions`, {
+    const response = await axios.get(`https://q-fi.onrender.com/get-questions`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       params: {
         quizName: this.$route.query.quizName,
@@ -272,7 +272,7 @@ async submitQuiz() {
     console.log("Payload being sent:", payload);
 
     try {
-        const response = await axios.post('http://localhost:5000/submit-quiz', payload, {
+        const response = await axios.post('https://q-fi.onrender.com/submit-quiz', payload, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
 
@@ -313,7 +313,7 @@ async submitRating(){
       const username = payload.sub.split(':')[0]  
       try {
         const response = await axios.post(
-          'http://localhost:5000/submit_quiz_rating',
+          'https://q-fi.onrender.com/submit_quiz_rating',
           {
             username:username,
             quizname: this.$route.query.quizName,

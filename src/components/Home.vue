@@ -143,7 +143,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://localhost:5000/login', 
+          'https://q-fi.onrender.com/login', 
           {
             username: this.username,
             password: this.password
@@ -191,7 +191,7 @@ async handleChangePassword() {
             new_password: this.new_password
           };
   
-          const response = await axios.post('http://localhost:5000/change-password', payload);
+          const response = await axios.post('https://q-fi.onrender.com/change-password', payload);
   
           if (response.data.success) {
             alert('Password changed successfully!');

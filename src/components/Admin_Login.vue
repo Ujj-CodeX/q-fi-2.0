@@ -68,7 +68,7 @@ export default {
 
       try {
         const response = await axios.post(
-          'http://localhost:5000/Admin_login', 
+          'https://q-fi.onrender.com/Admin_login', 
           {
             username: this.username,
             password: this.password

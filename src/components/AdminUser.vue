@@ -161,7 +161,7 @@ const fetchUserDetails = async () => {
 
   try {
     const token = localStorage.getItem('admin_token');
-    const response = await axios.get(`http://localhost:5000/api/user/${userId.value}`,{headers: {
+    const response = await axios.get(`https://q-fi.onrender.com/api/user/${userId.value}`,{headers: {
         'Authorization': `Bearer ${token}` 
       }})
     userDetails.value = response.data
@@ -179,7 +179,7 @@ const quizAttempts = ref([])
 onMounted(async () => {
   try {
     const token = localStorage.getItem('admin_token')
-    const response = await axios.get('http://localhost:5000/api/quiz-attempts', {
+    const response = await axios.get('https://q-fi.onrender.com/api/quiz-attempts', {
       headers: { Authorization: `Bearer ${token}` }
     })
 
@@ -212,7 +212,7 @@ const pieChartData = ref(null)
 const loadPieChartData = async () => {
   try {
     const token = localStorage.getItem('admin_token');
-    const response = await axios.get('http://localhost:5000/api/quiz-average-ratings',{
+    const response = await axios.get('https://q-fi.onrender.com/api/quiz-average-ratings',{
       headers: { Authorization: `Bearer ${token}` }
     })
     const data = response.data
@@ -247,7 +247,7 @@ const userReviews = ref([])
 const loadUserReviews = async () => {
   try {
     const token = localStorage.getItem('admin_token');
-    const response = await axios.get('http://localhost:5000/api/user-reviews',{
+    const response = await axios.get('https://q-fi.onrender.com/api/user-reviews',{
       headers: { Authorization: `Bearer ${token}` }
     })
     userReviews.value = response.data
@@ -273,7 +273,7 @@ function logout() {
 
 function sendmonthlyreminder() {
       const token = localStorage.getItem('admin_token');
-    fetch("http://localhost:5000/send-monthly-reminder", {
+    fetch("https://q-fi.onrender.com/send-monthly-reminder", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${(token)}`,

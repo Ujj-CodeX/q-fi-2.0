@@ -309,7 +309,7 @@ export default {
   try {
     const token = localStorage.getItem('token');  
 
-    const response = await axios.get('http://localhost:5000/subjects1', {
+    const response = await axios.get('https://q-fi.onrender.com/subjects1', {
       headers: {
         'Authorization': `Bearer ${token}` 
       }
@@ -332,7 +332,7 @@ async fetchChapters(subjectId) {
     }
 
     try {
-        const response = await axios.get(`http://localhost:5000/chapters1/${subjectId}`, {
+        const response = await axios.get(`https://q-fi.onrender.com/chapters1/${subjectId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -394,7 +394,7 @@ startQuiz() {
 async fetchLeaderboard() {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:5000/leaderboard`, {
+      const response = await axios.get(`https://q-fi.onrender.com/leaderboard`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -429,7 +429,7 @@ async fetchLeaderboard() {
   },
   async fetchScoreHistory() {
     try {
-      const response = await fetch("http://localhost:5000/score-history", {
+      const response = await fetch("https://q-fi.onrender.com/score-history", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
@@ -451,7 +451,7 @@ openattemptcard() {
 
 async fetchPastAttempts() {
   try {
-    const response = await axios.get('http://localhost:5000/past_attempts', {
+    const response = await axios.get('https://q-fi.onrender.com/past_attempts', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -463,7 +463,7 @@ async fetchPastAttempts() {
   }
 },
 downloadReport() {
-  fetch('http://localhost:5000/download-report', {
+  fetch('https://q-fi.onrender.com/download-report', {
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     }
@@ -504,7 +504,7 @@ async submitReview(e) {
       }
 
       try {
-        const response = await axios.post('http://localhost:5000/submit_review', {
+        const response = await axios.post('https://q-fi.onrender.com/submit_review', {
           username: username || 'Anonymous', 
           review: this.review
         });

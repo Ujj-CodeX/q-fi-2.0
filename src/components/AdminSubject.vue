@@ -198,7 +198,7 @@ import { useRouter } from 'vue-router';
     methods: {
       async fetchCourses() {
         try {
-          const response = await axios.get('http://localhost:5000/courses');
+          const response = await axios.get('https://q-fi.onrender.com/courses');
           this.courses = response.data;
         } catch (error) {
           console.error('Error fetching courses:', error);
@@ -209,7 +209,7 @@ import { useRouter } from 'vue-router';
         try {
           const token = localStorage.getItem('admin_token');
 
-          await axios.post('http://localhost:5000/add-course', { name: this.newCourseName },{headers: {
+          await axios.post('https://q-fi.onrender.com/add-course', { name: this.newCourseName },{headers: {
         'Authorization': `Bearer ${token}` 
       }});
           this.fetchCourses();
@@ -223,7 +223,7 @@ import { useRouter } from 'vue-router';
       async deleteCourse(courseId) {
         try {
           const token = localStorage.getItem('admin_token');
-          await axios.delete(`http://localhost:5000/delete-course/${courseId}`,{headers: {
+          await axios.delete(`https://q-fi.onrender.com/delete-course/${courseId}`,{headers: {
         'Authorization': `Bearer ${token}` 
       }});
           this.fetchCourses();
@@ -234,7 +234,7 @@ import { useRouter } from 'vue-router';
       async deleteSubject(subjectId) {
     try {
       const token = localStorage.getItem('admin_token');
-        await axios.delete(`http://localhost:5000/delete-subject/${subjectId}`,{headers: {
+        await axios.delete(`https://q-fi.onrender.com/delete-subject/${subjectId}`,{headers: {
         'Authorization': `Bearer ${token}` 
       }});
         this.subjects = this.subjects.filter(subject => subject.id !== subjectId);
@@ -246,7 +246,7 @@ import { useRouter } from 'vue-router';
 async deleteChapter(chapterId) {
     try {
       const token = localStorage.getItem('admin_token');
-        await axios.delete(`http://localhost:5000/delete-chapter/${chapterId}`,{headers: {
+        await axios.delete(`https://q-fi.onrender.com/delete-chapter/${chapterId}`,{headers: {
         'Authorization': `Bearer ${token}` 
       }});
         this.chapters = this.chapters.filter(chapter => chapter.id !== chapterId);
@@ -258,7 +258,7 @@ async deleteChapter(chapterId) {
       async addSubject() {
         try {
           const token = localStorage.getItem('admin_token');
-          await axios.post('http://localhost:5000/add-subject', {
+          await axios.post('https://q-fi.onrender.com/add-subject', {
             name: this.newSubjectName,
             course_id: this.selectedCourse
           },{headers: {
@@ -274,7 +274,7 @@ async deleteChapter(chapterId) {
   
       async fetchSubjects() {
         try {
-          const response = await axios.get(`http://localhost:5000/subjects/${this.selectedCourse}`);
+          const response = await axios.get(`https://q-fi.onrender.com/subjects/${this.selectedCourse}`);
           this.subjects = response.data;
         } catch (error) {
           console.error('Error fetching subjects:', error);
@@ -284,7 +284,7 @@ async deleteChapter(chapterId) {
       async addChapter() {
         try {
           const token = localStorage.getItem('admin_token');
-          await axios.post('http://localhost:5000/add-chapter', {
+          await axios.post('https://q-fi.onrender.com/add-chapter', {
             name: this.newChapterName,
             subject_id: this.selectedSubject
           },{headers: {
@@ -301,7 +301,7 @@ async deleteChapter(chapterId) {
       async fetchChapters() {
         try {
           
-          const response = await axios.get(`http://localhost:5000/chapters/${this.selectedSubject}/${this.selectedCourse}`);
+          const response = await axios.get(`https://q-fi.onrender.com/chapters/${this.selectedSubject}/${this.selectedCourse}`);
           this.chapters = response.data;
         } catch (error) {
           console.error('Error fetching chapters:', error);
@@ -313,7 +313,7 @@ async deleteChapter(chapterId) {
     if (updatedName && updatedName.trim()) {
       try {
         const token = localStorage.getItem('admin_token');
-        await axios.put(`http://localhost:5000/edit-course/${course.id}`, { name: updatedName.trim() },{headers: {
+        await axios.put(`https://q-fi.onrender.com/edit-course/${course.id}`, { name: updatedName.trim() },{headers: {
         'Authorization': `Bearer ${token}` 
       }});
         this.fetchCourses();
@@ -328,7 +328,7 @@ async deleteChapter(chapterId) {
     if (updatedName && updatedName.trim()) {
       try {
         const token = localStorage.getItem('admin_token');
-        await axios.put(`http://localhost:5000/edit-subject/${subject.id}`, { name: updatedName.trim() },{headers: {
+        await axios.put(`https://q-fi.onrender.com/edit-subject/${subject.id}`, { name: updatedName.trim() },{headers: {
         'Authorization': `Bearer ${token}` 
       }});
         this.fetchSubjects();
@@ -343,7 +343,7 @@ async deleteChapter(chapterId) {
     if (updatedName && updatedName.trim()) {
       try {
         const token = localStorage.getItem('admin_token');
-        await axios.put(`http://localhost:5000/edit-chapter/${chapter.id}`, { name: updatedName.trim() },{headers: {
+        await axios.put(`https://q-fi.onrender.com/edit-chapter/${chapter.id}`, { name: updatedName.trim() },{headers: {
         'Authorization': `Bearer ${token}` 
       }});
         this.fetchChapters();
@@ -354,7 +354,7 @@ async deleteChapter(chapterId) {
   },
   sendmonthlyreminder() {
       const token = localStorage.getItem('admin_token');
-    fetch("http://localhost:5000/send-monthly-reminder", {
+    fetch("https://q-fi.onrender.com/send-monthly-reminder", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${(token)}`,

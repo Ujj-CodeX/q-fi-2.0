@@ -83,7 +83,7 @@ export default{
 
         async fetchcourses(){
             try{
-                const responses =await axios.get('http://localhost:5000/courses');
+                const responses =await axios.get('https://q-fi.onrender.com/courses');
                 this.courses = responses.data;
                 
             }catch(error){
@@ -105,7 +105,7 @@ export default{
             };
             console.log('Signup payload:', payload);
 
-            const response = await axios.post('http://localhost:5000/SignUp', payload);
+            const response = await axios.post('https://q-fi.onrender.com/SignUp', payload);
   
           if (response.data.success) {
             alert(response.data.message || 'Signup successful!');

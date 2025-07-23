@@ -190,7 +190,7 @@ export default{
   methods: {
       async fetchCourses() {
         try {
-          const response = await axios.get('http://localhost:5000/courses');
+          const response = await axios.get('https://q-fi.onrender.com/courses');
           this.courses = response.data;
         } catch (error) {
           console.error('Error fetching courses:', error);
@@ -199,7 +199,7 @@ export default{
 
       async fetchSubjects() {
         try {
-          const response = await axios.get(`http://localhost:5000/subjects/${this.selectedCourse}`);
+          const response = await axios.get(`https://q-fi.onrender.com/subjects/${this.selectedCourse}`);
           this.subjects = response.data;
         } catch (error) {
           console.error('Error fetching subjects:', error);
@@ -208,7 +208,7 @@ export default{
 
       async fetchChapters() {
         try {
-          const response = await axios.get(`http://localhost:5000/chapters/${this.selectedSubject}/${this.selectedCourse}`);
+          const response = await axios.get(`https://q-fi.onrender.com/chapters/${this.selectedSubject}/${this.selectedCourse}`);
           this.chapters = response.data;
         } catch (error) {
           console.error('Error fetching chapters:', error);
@@ -217,7 +217,7 @@ export default{
       async fetchQuestions() {
         try {
           const token = localStorage.getItem('admin_token');
-            const response = await axios.get(`http://localhost:5000/api/get_questions/${this.selectedChapter}`,{headers: {
+            const response = await axios.get(`https://q-fi.onrender.com/api/get_questions/${this.selectedChapter}`,{headers: {
         'Authorization': `Bearer ${token}` 
       }} );
             console.log('Fetched Questions:', response.data); 
@@ -230,7 +230,7 @@ export default{
       async submitQuestion() {
         try {
           const token = localStorage.getItem('admin_token');
-            await axios.post('http://localhost:5000/api/questions', {
+            await axios.post('https://q-fi.onrender.com/api/questions', {
                 question: this.newQuestion,
                 options: this.newOptions,
                 correctAnswer: this.correctAnswer,
@@ -269,7 +269,7 @@ export default{
     async saveEditedQuestion() {
         try {
           const token = localStorage.getItem('admin_token');
-            await axios.put(`http://localhost:5000/api/edit_question/${this.editingQuestionId}`, {
+            await axios.put(`https://q-fi.onrender.com/api/edit_question/${this.editingQuestionId}`, {
               
                 question: this.newQuestion,
                 options: this.newOptions,
@@ -298,7 +298,7 @@ export default{
         if (confirm('Are you sure you want to delete this question?')) {
             try {
               const token = localStorage.getItem('admin_token');
-                await axios.delete(`http://localhost:5000/api/delete_question/${questionId}`,{headers: {
+                await axios.delete(`https://q-fi.onrender.com/api/delete_question/${questionId}`,{headers: {
            'Authorization': `Bearer ${token}` 
       }});
                 alert('Question deleted successfully!');
@@ -311,7 +311,7 @@ export default{
     },
     sendReminder() {
       const token = localStorage.getItem('admin_token');
-    fetch("http://localhost:5000/send-reminder", {
+    fetch("https://q-fi.onrender.com/send-reminder", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${(token)}`,
@@ -327,7 +327,7 @@ export default{
   },
   sendmonthlyreminder() {
       const token = localStorage.getItem('admin_token');
-    fetch("http://localhost:5000/send-monthly-reminder", {
+    fetch("https://q-fi.onrender.com/send-monthly-reminder", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${(token)}`,

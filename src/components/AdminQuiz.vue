@@ -3,9 +3,9 @@
    
     <div class="sidebar-card">
       <h5 style="color: white; margin-left: 20px;">Admin Management</h5>
-      <a class="nav-link" style="color:whitesmoke; cursor:pointer; display: block; margin-top:30px;" href="/Admin_Dash">Academics Management</a>
-       <a class="nav-link" style="color:whitesmoke;cursor:pointer; display: block; margin-top:30px;" href="/Admin_User">User Management</a>
-       <a class="nav-link" style="color:whitesmoke; cursor:pointer;display: block; margin-top:30px;" href="/Admin_Quiz">Quiz Management</a>
+      <router-link class="nav-link" style="color:whitesmoke; cursor:pointer; display: block; margin-top:30px;" to="/Admin_Dash">Academics Management</router-link>
+       <router-link class="nav-link" style="color:whitesmoke;cursor:pointer; display: block; margin-top:30px;" to="/Admin_User">User Management</router-link>
+       <router-link class="nav-link" style="color:whitesmoke; cursor:pointer;display: block; margin-top:30px;" to="/Admin_Quiz">Quiz Management</router-link>
        <a class="nav-link" 
    style="color:whitesmoke; display: block; margin-top:30px; cursor:pointer; font-weight: bold;" 
    @click="logout">

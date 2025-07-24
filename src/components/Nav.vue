@@ -14,14 +14,14 @@
                     <router-link class="nav-link text-light" to="/About">About Us</router-link>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="/">Home</a>
+                    <router-link class="nav-link text-light" to="/">Home</router-link>
                 </li>
                 
                 <li class="nav-item ">
-                    <a class="nav-link text-light" href="/SignUp">Sign Up</a>
+                    <router-link class="nav-link text-light" to="/SignUp">Sign Up</router-link>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-light" href="/admin">Admin</a>
+                    <router-link class="nav-link text-light" to="/admin">Admin</router-link>
                 </li>
                 <li class="nav-item">
                 <a  class="nav-link text-light" v-if="auth.isLoggedIn" @click="logout" style="cursor: pointer;">User Logout</a>

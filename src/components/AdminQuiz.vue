@@ -51,7 +51,7 @@
    
 
 
-<div class="card inset-card p-4 text-center" style="width: 1200px; height: 500px; margin-left: 30px; margin-top: 50px; border-radius: 10px;">
+<div class="card inset-card p-4 text-center" style="width: 1200px; height: auto; margin-left: 30px; margin-top: 50px; border-radius: 10px;">
   <div v-for="question in questions" :key="question.id" class="question-card">
    <div style="display: flex; align-items: flex-start;">
   <h4>Question-  {{ question.text }}</h4>
@@ -63,8 +63,7 @@
     <span :class="{'text-success font-weight-bold': option.text === question.correctAnswer}" >
       {{ option.text }} <span v-if="option.text === question.correctAnswer">(✔️)</span>
     </span>
-     <button @click="deleteQuestion(question.id)" class="btn btn-primary btn-sm" style="margin-left: 10px;">Edit</button>
-
+     
 
     
   </li>

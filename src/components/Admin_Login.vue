@@ -1,54 +1,63 @@
 <template>
-    <div class="container my-5">
-    
-    <div class="card inset-card p-4 text-center mx-auto my-card" style="max-height: 100%; width: 100%; border-radius: 25px; background-color:white; overflow: auto;">
-            
-        
-            <div style="display: flex; align-items: flex-start;  gap: 100px;" >
-          <img :src="require('@/assets/16.png')" style="height: 350px; width: 350px;  margin-left: 50px;  margin-top:100px;"  >
-            
-        <div style="width: 1px; height: 400px; background-color: #ccc; margin-top: 100px;"></div>
-            <div class="mb-3" style="width: 300px; margin-left: 50px; margin-top: 150px;">
-
-
-
-
-              
-                <form @submit.prevent="handleLogin" >
-
-
-                
-                    
-                    
-                <h4 style="color: black;  ">Admin Login</h4>
-                <br>
-                
-                
-                <input type="username" class="form-control" id="username" v-model="username" placeholder="Username" name="username" style="font-weight: bold;"><br>
-                
-                
-               
-                <input type="password" class="form-control" id="Password" v-model="password" placeholder="Password" name="password" style="font-weight: bold;"><br>
-                <button 
-  :disabled="loading" 
-  type="submit" 
-  class="btn btn-primary"
-  style="margin-top: 10px; width: 100px; border-radius: 15px; background-color: rgb(3, 3, 137); color: white;"
->
-  {{ loading ? 'Logging in...' : 'Log IN' }}
-</button>
-                
-                </form>
-            
-            </div>
-
-            
-            
-            
-            </div>
+  <div class="container my-5">
+    <div
+      class="card inset-card p-4 text-center mx-auto my-card"
+      style="max-height: 100%; width: 100%; border-radius: 25px; background-color:white; overflow: auto;"
+    >
+      <div class="row justify-content-center align-items-center">
+        <!-- Image Section -->
+        <div class="col-lg-5 col-md-6 col-sm-12 text-center mb-4 mb-lg-0">
+          <img
+            :src="require('@/assets/16.png')"
+            class="img-fluid"
+            style="max-height: 350px; margin-top: 100px;"
+            alt="Admin"
+          />
         </div>
-</div>
+
+        <!-- Divider (visible only on large screens) -->
+        <div class="d-none d-lg-block col-lg-1">
+          <div style="width: 1px; height: 300px; background-color: #ccc;"></div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="col-lg-5 col-md-6 col-sm-12">
+          <form @submit.prevent="handleLogin" class="text-start px-3 px-md-0">
+            <h4 class="text-center text-dark mb-4">Admin Login</h4>
+
+            <input
+              type="text"
+              class="form-control mb-3"
+              v-model="username"
+              placeholder="Username"
+              name="username"
+              style="font-weight: bold;"
+            />
+
+            <input
+              type="password"
+              class="form-control mb-3"
+              v-model="password"
+              placeholder="Password"
+              name="password"
+              style="font-weight: bold;"
+            />
+
+            <button
+              :disabled="loading"
+              type="submit"
+              class="btn btn-primary w-100"
+              style="border-radius: 15px; background-color: rgb(3, 3, 137);"
+            >
+              {{ loading ? 'Logging in...' : 'Log IN' }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
 import axios from 'axios';
 import { auth } from '../store';

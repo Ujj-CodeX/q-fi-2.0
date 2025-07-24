@@ -1,65 +1,61 @@
 <template>
-<div style="display: flex; align-items: flex-start; " >
-    
-    <div class="card inset-card p-4 text-center" style="width: 800px;  margin-top: 50px; margin-bottom: 50px; border-radius: 15px; margin-left: 100px;">
-  <div class="row g-0">
-    
-    <div class="col-md-10">
-      <div class="card-body" style="margin-left: 100px;">
-
-        <form @submit.prevent="handleSignup">
+  <div class="container mt-5 mb-5">
+    <div class="row align-items-center justify-content-center">
+      <!-- Registration Card -->
+      <div class="col-lg-6 col-md-8 col-sm-12 mb-4">
+        <div class="card inset-card p-4 text-center" style="border-radius: 15px;">
+          <form @submit.prevent="handleSignup">
             <h4 style="color: black; text-align: center;">Registration</h4>
-            <br>
-            <div style="display: flex; flex-direction: row; gap: 5px;">
-            
-            <input type="text" v-model="formData.username" class="form-control" id="username" placeholder="Username" style="font-weight: bold;" name="username"><br>
-            <input type="password" v-model="formData.password" class="form-control" id="password" placeholder="Password" style="font-weight: bold;" name="password"><br>
-            </div><br>
+            <br />
 
-            <div style="display: flex; flex-direction: row; gap: 5px;">
-            
-            <input type="text" v-model="formData.name" class="form-control" id="fullname" placeholder="Full Name" style="font-weight: bold;" name="name"><br>
-            
-            
-            </div><br>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="text" v-model="formData.username" class="form-control" placeholder="Username" name="username" style="font-weight: bold;" />
+              </div>
+              <div class="col-6">
+                <input type="password" v-model="formData.password" class="form-control" placeholder="Password" name="password" style="font-weight: bold;" />
+              </div>
+            </div><br />
 
-            <div style="display: flex; flex-direction: row; gap: 5px;">
-            <div class="col-auto">
-                <select id="gender" v-model="formData.gender" name="gender" class="form-control" style="width: 100%; font-weight: bold;" >
-                    <option disabled value="" >Choose your Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+            <input type="text" v-model="formData.name" class="form-control mb-3" placeholder="Full Name" name="name" style="font-weight: bold;" />
+
+            <div class="row g-2">
+              <div class="col-6">
+                <select v-model="formData.gender" name="gender" class="form-control" style="font-weight: bold;">
+                  <option disabled value="">Choose your Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
                 </select>
-            </div><br>
-            <input type="date" v-model="formData.birthdate" class="form-control" id="dob" placeholder="Date of Birth" style="font-weight: bold;" name="dob"><br>
+              </div>
+              <div class="col-6">
+                <input type="date" v-model="formData.birthdate" class="form-control" name="dob" style="font-weight: bold;" />
+              </div>
+            </div><br />
 
-            </div><br>
-            
-            <input type="email" v-model="formData.email" class="form-control" id="email" placeholder="Email ID" style="font-weight: bold;" name="email"><br>
+            <input type="email" v-model="formData.email" class="form-control mb-3" placeholder="Email ID" name="email" style="font-weight: bold;" />
 
-            <select id="services" v-model="formData.course" name="service" class="form-control" required style="font-weight: bold;">
-                <option value="" style="font-weight: bold;" >Select your Preffered Course</option>
-                <option v-for="course in courses" :key="course.id" :value="course.name">
-              {{ course.name }}
-            </option>
-            </select><br>
-            
-            <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%; background-color: rgb(3, 3, 137); color: white;">Register Now</button>
+            <select v-model="formData.course" name="course" class="form-control mb-3" required style="font-weight: bold;">
+              <option value="">Select your Preferred Course</option>
+              <option v-for="course in courses" :key="course.id" :value="course.name">{{ course.name }}</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary w-100" style="background-color: rgb(3, 3, 137);">Register Now</button>
+
             <h7 style="margin-top: 20px; display: block; text-align: center;">Already have an ID?</h7>
-            <a type="button" href="/Partner_login" class="btn btn-primary" style="margin-top: 10px; width: 100%; background-color: rgb(3, 3, 137); color: white;">Login</a>
-        </form>
-    </div>
-      
+            <a href="/Partner_login" class="btn btn-primary w-100 mt-2" style="background-color: rgb(3, 3, 137);">Login</a>
+          </form>
+        </div>
+      </div>
+
+      <!-- Responsive Image -->
+      <div class="col-lg-5 col-md-8 col-sm-12 text-center">
+        <img :src="require('@/assets/15.png')" class="img-fluid" alt="Illustration" style="max-height: 600px;" />
+      </div>
     </div>
   </div>
-</div>
-<img :src="require('@/assets/15.png')" style="height: 600px; width: 500px;  margin-left: auto; margin-right: 60px; display: block; margin-top: 50px;"  >
-</div>
-
-
-
 </template>
+
 <script >
 import axios from 'axios';
 export default{

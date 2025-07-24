@@ -319,11 +319,17 @@ async submitRating(){
             quizname: this.$route.query.quizName,
             rating: this.rating
           }
-        )
-        this.message = response.data.message
+        );
+        if (response.data.message) {
+            alert(`Quiz  rating submitted successfully!`);
+            this.$router.push('/User');
+        } else {
+            alert('Submission failed. Please try again.');
+           }
+        
       } catch (err) {
         console.error(err)
-        this.message = 'Failed to submit rating.'
+        alert('Submission failed. Please try again.');
       }
     }
 

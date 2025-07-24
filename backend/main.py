@@ -397,7 +397,7 @@ def edit_chapter(chapter_id):
 def get_questions(chapter_id):
     print(f"Received request for chapter_id: {chapter_id}")
     try:
-        connection = sqlite3.connect('database.db')
+        connection = sqlite3.connect('Database.db')
         cursor = connection.cursor()
 
         query = """
